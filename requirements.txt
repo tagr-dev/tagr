@@ -2,4 +2,3 @@ numpy >=1.15
 pandas
 boto3
 s3fs
-git
