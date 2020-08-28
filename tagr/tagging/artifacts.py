@@ -7,6 +7,7 @@ import pickle
 from datetime import datetime
 from tagr.config import OBJECTS, EXP_OBJECTS, EXP_OBJECT_TYPES
 from tagr.utils import NpEncoder
+from tagr.storage import Aws, Local
 
 logger = logging.getLogger("tagging_artifact")
 
@@ -80,7 +81,7 @@ class Tags(object):
             {"artifact": artifact, "type": types}, index=EXP_OBJECTS + cust_keys
         )
 
-    def flush(self, proj, exp, tag=None):
+    def flush(self, proj, exp, dump='local', tag=None):
         """
         Pushes all variables from `queue` to metadata store.
         Generates metadata for artifacts of type pd.Dataframe in JSON
@@ -91,7 +92,8 @@ class Tags(object):
         proj: project name on metadata provider
         exp: experiment name
         tag: custom commit message
-
+        dump: destination for experiment data to be dumped ('aws', 'gcp', 'azure', 'local')
+            - for dump, asssume local by default if destination not provided
         """
         # todo create metadata provider file to hook into s3 and blob
 
@@ -125,9 +127,13 @@ class Tags(object):
             # Push dfs #
             #############
             # todo: save larger dfs as parquet, maybe partition as well
-            logger.info("saving dataframes as csv to S3")
-            df.to_csv("s3://{}/{}/{}/{}.csv".format(proj, exp, tag, i), index=False)
-
+            logger.info("saving dataframes as csv to " + str(dump))
+            
+            if dump == 'aws':
+                Aws.dump_csv(df, proj, exp, tag, i)
+            else:
+                Local.dump_csv(df, proj, exp, tag, i)
+        
         nums_and_strings = list(
             summary[summary["type"].isin(["int", "float", "str"])].index
         )
@@ -145,20 +151,31 @@ class Tags(object):
             "nums_and_strings": nums_and_strings_dict,
         }
 
+        '''
         s3 = boto3.resource("s3")
         s3object = s3.Object(proj, "{}/{}/df_summary.json".format(exp, tag))
+        '''
 
         logger.info("pushing metadata json to S3")
+
+        '''
         s3object.put(
             Body=(bytes(json.dumps(df_metadata, cls=NpEncoder).encode("UTF-8"))),
             ContentType="application/json",
         )
+    
+        json.dump(df_metadata, 'test.json')
+        '''
 
         logger.info("saving models to s3")
         models = list(summary[summary["type"] == "model"].index)
         for i in models:
             model = summary["artifact"].loc[i]
             pickle_byte_obj = pickle.dumps(model)
+            '''
             s3.Object(proj, "{}/{}/{}.pkl".format(exp, tag, i)).put(
                 Body=pickle_byte_obj
             )
+            
+            pickle.dump( pickle_byte_obj, open( "test.p", "wb" ) )
+            '''
