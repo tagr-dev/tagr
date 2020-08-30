@@ -10,7 +10,7 @@ class Local:
         with open("{}-{}-df_summary.json".format(exp, tag), 'w') as outfile:
             json.dump(df_metadata, outfile, default=str)
     
-    def dump_pickle(self, pickle_object, exp, tag, i):
+    def dump_pickle(self, pickle_object, proj, exp, tag, i):
         pickle.dump(pickle_object, open( 
-            "{}-{}-{}.pkl".format(exp, tag, i), "wb" 
+            "{}-{}-{}-{}.pkl".format(proj, exp, tag, i), "wb" 
         ))

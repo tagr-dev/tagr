@@ -165,6 +165,6 @@ class Tags(object):
             pickle_byte_obj = pickle.dumps(model)
 
             if dump == 'aws':
-                Aws().dump_pickle(pickle_byte_obj, exp, tag, i)
+                Aws().dump_pickle(pickle_byte_obj, proj, exp, tag, i)
             else:
-                Local().dump_pickle(pickle_byte_obj, exp, tag, i)
+                Local().dump_pickle(pickle_byte_obj, proj, exp, tag, i)
