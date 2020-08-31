@@ -1,12 +1,9 @@
 import logging
-import json
-import boto3
 import pandas as pd
 import pickle
 
 from datetime import datetime
 from tagr.config import OBJECTS, EXP_OBJECTS, EXP_OBJECT_TYPES
-from tagr.utils import NpEncoder
 from tagr.storage.aws import Aws
 from tagr.storage.local import Local
 
@@ -137,7 +134,7 @@ class Tags(object):
             logger.info("saving dataframes as csv to " + str(dump))
             # push csv
             self.storage_provider.dump_csv(df, proj, exp, tag, df_name)
-        
+
         nums_and_strings = list(
             summary[summary["type"].isin(["int", "float", "str"])].index
         )
