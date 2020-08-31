@@ -125,10 +125,10 @@ class Tags(object):
         col_stats_dict = {}
 
         logger.info("collecting dataframe types and summary stats for json")
-        for filename in df_names:
-            df = summary["artifact"].loc[filename]
-            col_types_dict[filename] = dict(zip(df.columns, df.dtypes.map(lambda x: x.name)))
-            col_stats_dict[filename] = df.describe().to_dict()
+        for df_name in df_names:
+            df = summary["artifact"].loc[df_name]
+            col_types_dict[df_name] = dict(zip(df.columns, df.dtypes.map(lambda x: x.name)))
+            col_stats_dict[df_name] = df.describe().to_dict()
 
             #############
             # Push dfs #
@@ -136,7 +136,7 @@ class Tags(object):
             # todo: save larger dfs as parquet, maybe partition as well
             logger.info("saving dataframes as csv to " + str(dump))
             # push csv
-            self.storage_provider.dump_csv(df, proj, exp, tag, filename)
+            self.storage_provider.dump_csv(df, proj, exp, tag, df_name)
         
         nums_and_strings = list(
             summary[summary["type"].isin(["int", "float", "str"])].index
