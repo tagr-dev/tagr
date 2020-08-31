@@ -162,8 +162,8 @@ class Tags(object):
         logger.info("saving models to s3")
         models = list(summary[summary["type"] == "model"].index)
 
-        for filename in models:
-            model = summary["artifact"].loc[filename]
-            pickle_byte_obj = pickle.dumps(model)
-            logger.info("pushing " + str(filename) + "metadata json to S3")
-            self.storage_provider.dump_pickle(pickle_byte_obj, proj, exp, tag, filename)
+        for model in models:
+            model_object = summary["artifact"].loc[model]
+            pickle_byte_obj = pickle.dumps(model_object)
+            logger.info("pushing " + str(model) + "metadata json to S3")
+            self.storage_provider.dump_pickle(pickle_byte_obj, proj, exp, tag, model)
