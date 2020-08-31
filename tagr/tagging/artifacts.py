@@ -17,6 +17,7 @@ class Tags(object):
     def __init__(self):
         self.queue = {}
         self.cust_queue = {}
+        self.storage_provider = Local()
 
     def save(self, artifact, obj: str, dtype: str = None):
         """
@@ -97,6 +98,12 @@ class Tags(object):
         """
         # todo create metadata provider file to hook into s3 and blob
 
+        # determine which storage provider to use
+        if dump == 'aws':
+            self.storage_provider = Aws()
+        elif dump == 'local':
+            self.storage_provider = Local()
+
         # use datetime as index if tag name not provided
         if not tag:
             logger.info("using datetime as tag")
@@ -118,21 +125,18 @@ class Tags(object):
         col_stats_dict = {}
 
         logger.info("collecting dataframe types and summary stats for json")
-        for i in df_names:
-            df = summary["artifact"].loc[i]
-            col_types_dict[i] = dict(zip(df.columns, df.dtypes.map(lambda x: x.name)))
-            col_stats_dict[i] = df.describe().to_dict()
+        for filename in df_names:
+            df = summary["artifact"].loc[filename]
+            col_types_dict[filename] = dict(zip(df.columns, df.dtypes.map(lambda x: x.name)))
+            col_stats_dict[filename] = df.describe().to_dict()
 
             #############
             # Push dfs #
             #############
             # todo: save larger dfs as parquet, maybe partition as well
             logger.info("saving dataframes as csv to " + str(dump))
-            
-            if dump == 'aws':
-                Aws().dump_csv(df, proj, exp, tag, i)
-            else:
-                Local().dump_csv(df, proj, exp, tag, i)
+            # push csv
+            self.storage_provider.dump_csv(df, proj, exp, tag, filename)
         
         nums_and_strings = list(
             summary[summary["type"].isin(["int", "float", "str"])].index
@@ -153,18 +157,13 @@ class Tags(object):
 
         logger.info("pushing metadata json to S3")
 
-        if dump == 'aws':
-            Aws().dump_json(df_metadata, proj, exp, tag)
-        else:
-            Local().dump_json(df_metadata, proj, exp, tag)
+        self.storage_provider.dump_json(df_metadata, proj, exp, tag)
 
         logger.info("saving models to s3")
         models = list(summary[summary["type"] == "model"].index)
-        for i in models:
-            model = summary["artifact"].loc[i]
-            pickle_byte_obj = pickle.dumps(model)
 
-            if dump == 'aws':
-                Aws().dump_pickle(pickle_byte_obj, proj, exp, tag, i)
-            else:
-                Local().dump_pickle(pickle_byte_obj, proj, exp, tag, i)
+        for filename in models:
+            model = summary["artifact"].loc[filename]
+            pickle_byte_obj = pickle.dumps(model)
+            logger.info("pushing " + str(filename) + "metadata json to S3")
+            self.storage_provider.dump_pickle(pickle_byte_obj, proj, exp, tag, filename)
