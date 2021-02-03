@@ -1,38 +1,30 @@
-"""
-Local class implementation
-"""
-
 import json
 import pickle
 
 
 class Local:
-    """
-    Aws class
-    obj = Local()
-    """
     def dump_csv(self, df, proj, exp, tag, filename):
         """
-        turns dataframe into csv and saves it to s3 directory
+        turns dataframe into csv and saves it to local storage
 
         Parameters
         ----------
         df: dataframe object
-        proj: project name on metadata provider
+        proj: project name 
         exp: experiment name
         tag: custom commit message
-        filename: filename to be exported
+        filename: filename to be saved locally
         """
         df.to_csv("{}-{}-{}-{}.csv".format(proj, exp, tag, filename), index=False)
 
     def dump_json(self, df_metadata, proj, exp, tag):
         """
-        turns dataframe into csv and saves it to s3 directory
+        turns dataframe into csv and saves it to local storage
 
         Parameters
         ----------
         df_metadata: json object containing experiment metadata
-        proj: project name on metadata provider
+        proj: project name 
         exp: experiment name
         tag: custom commit message
         """
@@ -41,12 +33,12 @@ class Local:
 
     def dump_pickle(self, pickle_object, proj, exp, tag, filename):
         """
-        turns dataframe into csv and saves it to s3 directory
+        turns dataframe into csv and saves it to local storage
 
         Parameters
         ----------
         pickle_object: model that has been serialized into a pickle object
-        proj: project name on metadata provider
+        proj: project name 
         exp: experiment name
         tag: custom commit message
         filename: filename to be exported

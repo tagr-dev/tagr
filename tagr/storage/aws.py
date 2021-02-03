@@ -12,10 +12,6 @@ csv_buffer = StringIO()
 
 
 class Aws:
-    """
-    Aws class
-    obj = Aws()
-    """
     def __init__(self):
         self.S3 = boto3.resource("s3")
 
