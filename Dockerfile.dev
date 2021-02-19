@@ -1,0 +1,21 @@
+FROM python:3.9.1
+
+WORKDIR /app
+
+# Copy in reqired files
+COPY requirements.txt ./
+
+# Install Python Requirements
+RUN pip install -U pip
+RUN pip install -r requirements.txt
+
+# Install VIM and Bash completion
+RUN apt-get update
+RUN apt-get install -y vim
+RUN apt-get install -y bash-completion
+
+# Jupyter, from https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/bin/tini
+ENV TINI_VERSION v0.6.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/bin/tini
+RUN chmod +x /usr/bin/tini
+ENTRYPOINT ["/usr/bin/tini", "--"]
