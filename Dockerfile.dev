@@ -14,7 +14,7 @@ RUN apt-get update
 RUN apt-get install -y vim
 RUN apt-get install -y bash-completion
 
-# Jupyter, from https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/bin/tini
+# Jupyter, from https://jupyter-notebook.readthedocs.io/en/stable/public_server.html#docker-cmd
 ENV TINI_VERSION v0.6.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/bin/tini
 RUN chmod +x /usr/bin/tini
