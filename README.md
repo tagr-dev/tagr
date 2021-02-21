@@ -4,6 +4,17 @@ A cloud agnostic data science productivity tool that will:
 - allow data scientists to manage models and experiment data
 - seamlessly integrate with different cloud storage providers such as S3, Google Cloud Storage, Azure Cloud Storage
 
+# How to test
+1. Run make
+```
+make
+```
+2. Spin up a jupyter notebook in the container
+```
+jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --allow-root
+```
+3. Test
+
 # Instructions
 1. Import tagr 
 ```
