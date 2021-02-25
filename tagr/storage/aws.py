@@ -63,3 +63,8 @@ class Aws:
         self.S3.Object(proj, "{}/{}/{}.pkl".format(exp, tag, filename)).put(
             Body=pickle_object
         )
+
+    def fetch(self, proj, path):
+        folders = self.S3.list_objects(proj) 
+        print(folders)
+        return folders

@@ -164,3 +164,24 @@ class Tags(object):
             pickle_byte_obj = pickle.dumps(model_object)
             logger.info("pushing " + str(model) + "metadata json to S3")
             self.storage_provider.dump_pickle(pickle_byte_obj, proj, exp, tag, model)
+
+    def fetch(self, proj, path, dump='local'):
+        """
+        fetches previously flushed experiments
+
+        Parameters
+        ----------
+        proj: project name on metadata provider
+        dir: directory path to look up
+        dump: destination for experiment data to be fetched from ('aws', 'gcp', 'azure', 'local')
+            - for dump, asssume local by default if destination not provided
+        """
+        # determine which storage provider to use
+        if dump == 'aws':
+            self.storage_provider = Aws()
+        elif dump == 'local':
+            self.storage_provider = Local()
+            
+        return 'hello'
+        #return self.storage_provider.fetch(proj, path)
+

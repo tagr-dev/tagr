@@ -1,6 +1,6 @@
 import json
 import pickle
-
+import os
 
 class Local:
     def dump_csv(self, df, proj, exp, tag, filename):
@@ -46,3 +46,7 @@ class Local:
         pickle.dump(pickle_object, open(
             "{}-{}-{}-{}.pkl".format(proj, exp, tag, filename), "wb"
         ))
+    
+    def fetch(self, proj, path):
+        folders = os.listdir('/' + proj + '/' + path)
+        return folders
