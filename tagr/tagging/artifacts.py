@@ -79,7 +79,7 @@ class Tags(object):
             {"artifact": artifact, "type": types}, index=EXP_OBJECTS + cust_keys
         )
 
-    def flush(self, proj, exp, dump='local', tag=None):
+    def flush(self, proj, experiment, dump='local', tag=None):
         """
         Pushes all variables from `queue` to metadata store.
         Generates metadata for artifacts of type pd.Dataframe in JSON
@@ -105,6 +105,9 @@ class Tags(object):
         if not tag:
             logger.info("using datetime as tag")
             tag = str(datetime.utcnow())
+        
+        # if folder directory doesnt exist, then create new directory
+        self.storage_provider.build_path(proj, experiment, tag)
 
         #####################
         # generate metadata #
@@ -131,9 +134,9 @@ class Tags(object):
             # Push dfs #
             #############
             # todo: save larger dfs as parquet, maybe partition as well
-            logger.info("saving dataframes as csv to " + str(dump))
+            logger.info("saving/flushing dataframes as csv to " + str(dump))
             # push csv
-            self.storage_provider.dump_csv(df, proj, exp, tag, df_name)
+            self.storage_provider.dump_csv(df, proj, experiment, tag, df_name)
 
         nums_and_strings = list(
             summary[summary["type"].isin(["int", "float", "str"])].index
@@ -152,15 +155,15 @@ class Tags(object):
             "nums_and_strings": nums_and_strings_dict,
         }
 
-        logger.info("pushing metadata json to S3")
+        logger.info("flushing metadata json to " + str(dump))
 
-        self.storage_provider.dump_json(df_metadata, proj, exp, tag)
+        self.storage_provider.dump_json(df_metadata, proj, experiment, tag)
 
-        logger.info("saving models to s3")
+        logger.info("saving/flushing models to " + str(dump))
         models = list(summary[summary["type"] == "model"].index)
 
         for model in models:
             model_object = summary["artifact"].loc[model]
             pickle_byte_obj = pickle.dumps(model_object)
-            logger.info("pushing " + str(model) + "metadata json to S3")
-            self.storage_provider.dump_pickle(pickle_byte_obj, proj, exp, tag, model)
+            logger.info("flushing " + str(model) + "metadata json to S3")
+            self.storage_provider.dump_pickle(pickle_byte_obj, proj, experiment, tag, model)
