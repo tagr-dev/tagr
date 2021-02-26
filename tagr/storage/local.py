@@ -55,4 +55,3 @@ class Local:
             os.makedirs("{}/{}/{}".format(proj, experiment, tag))
         except OSError:
             print("The directory %s already exists" % "{}/{}/{}".format(proj, experiment, tag))
-    
