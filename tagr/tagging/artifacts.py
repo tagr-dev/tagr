@@ -94,20 +94,19 @@ class Tags(object):
             - for dump, asssume local by default if destination not provided
         """
         # todo create metadata provider file to hook into s3 and blob
+        
+        # use datetime as index if tag name not provided
+        if not tag:
+            logger.info("using datetime as tag")
+            tag = str(datetime.utcnow())
 
         # determine which storage provider to use
         if dump == 'aws':
             self.storage_provider = Aws()
         elif dump == 'local':
             self.storage_provider = Local()
-
-        # use datetime as index if tag name not provided
-        if not tag:
-            logger.info("using datetime as tag")
-            tag = str(datetime.utcnow())
-        
-        # if folder directory doesnt exist, then create new directory
-        self.storage_provider.build_path(proj, experiment, tag)
+            # if folder directory doesnt exist, then create new directory
+            self.storage_provider.build_path(proj, experiment, tag)
 
         #####################
         # generate metadata #
