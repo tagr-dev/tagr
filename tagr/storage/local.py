@@ -3,7 +3,7 @@ import pickle
 import os
 import logging
 
-logger = logging.getLogger("tagging_artifact")
+logger = logging.getLogger("saving experiment to local storage")
 
 class Local:
     def dump_csv(self, df, proj, experiment, tag, filename):
@@ -54,4 +54,5 @@ class Local:
         try:
             os.makedirs("{}/{}/{}".format(proj, experiment, tag))
         except OSError:
-            print("The directory %s already exists" % "{}/{}/{}".format(proj, experiment, tag))
+            #"The directory waterflow-tagr/sunrise/testlocal already exists. If using the tag argument, please provide a new unique identifier"
+            logger.info("The directory %s already exists. If using the tag argument, please provide a new unique identifier." % "{}/{}/{}".format(proj, experiment, tag))

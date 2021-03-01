@@ -133,7 +133,7 @@ class Tags(object):
             # Push dfs #
             #############
             # todo: save larger dfs as parquet, maybe partition as well
-            logger.info("saving/flushing dataframes as csv to " + str(dump))
+            logger.info("flushing dataframes as csv to " + str(dump))
             # push csv
             self.storage_provider.dump_csv(df, proj, experiment, tag, df_name)
 
@@ -158,7 +158,7 @@ class Tags(object):
 
         self.storage_provider.dump_json(df_metadata, proj, experiment, tag)
 
-        logger.info("saving/flushing models to " + str(dump))
+        logger.info("flushing models to " + str(dump))
         models = list(summary[summary["type"] == "model"].index)
 
         for model in models:
