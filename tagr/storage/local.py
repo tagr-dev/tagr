@@ -1,9 +1,12 @@
 import json
 import pickle
+import os
+import logging
 
+logger = logging.getLogger("saving experiment to local storage")
 
 class Local:
-    def dump_csv(self, df, proj, exp, tag, filename):
+    def dump_csv(self, df, proj, experiment, tag, filename):
         """
         turns dataframe into csv and saves it to local storage
 
@@ -15,9 +18,9 @@ class Local:
         tag: custom commit message
         filename: filename to be saved locally
         """
-        df.to_csv("{}-{}-{}-{}.csv".format(proj, exp, tag, filename), index=False)
+        df.to_csv("{}/{}/{}/{}.csv".format(proj, experiment, tag, filename), index=False)
 
-    def dump_json(self, df_metadata, proj, exp, tag):
+    def dump_json(self, df_metadata, proj, experiment, tag):
         """
         turns dataframe into csv and saves it to local storage
 
@@ -28,10 +31,10 @@ class Local:
         exp: experiment name
         tag: custom commit message
         """
-        with open("{}-{}-df_summary.json".format(exp, tag), 'w') as outfile:
+        with open("{}/{}/{}/df_summary.json".format(proj, experiment, tag), 'w') as outfile:
             json.dump(df_metadata, outfile, default=str)
 
-    def dump_pickle(self, pickle_object, proj, exp, tag, filename):
+    def dump_pickle(self, pickle_object, proj, experiment, tag, filename):
         """
         turns dataframe into csv and saves it to local storage
 
@@ -44,5 +47,12 @@ class Local:
         filename: filename to be exported
         """
         pickle.dump(pickle_object, open(
-            "{}-{}-{}-{}.pkl".format(proj, exp, tag, filename), "wb"
+            "{}/{}/{}/{}.pkl".format(proj, experiment, tag, filename), "wb"
         ))
+    
+    def build_path(self, proj, experiment, tag):
+        try:
+            os.makedirs("{}/{}/{}".format(proj, experiment, tag))
+        except OSError:
+            #"The directory waterflow-tagr/sunrise/testlocal already exists. If using the tag argument, please provide a new unique identifier"
+            logger.info("The directory %s already exists. If using the tag argument, please provide a new unique identifier." % "{}/{}/{}".format(proj, experiment, tag))
