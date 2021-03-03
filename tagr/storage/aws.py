@@ -64,7 +64,25 @@ class Aws:
             Body=pickle_object
         )
 
-    def fetch(self, proj, path):
-        folders = self.S3.list_objects(proj) 
-        print(folders)
+    def list(self, proj, experiment, tag):
+        '''
+        gets list of files/folders located at {proj}/{experiment}/{tag}
+
+        Parameters
+        __________
+        proj: project name (s3 bucket name)
+        experiment: experiment name 
+        tag: custom commit message (optional)
+        '''
+        folders = []
+        object_path = experiment
+        if tag:
+            object_path += ('/' + tag)
+
+        bucket = self.S3.Bucket(proj)
+        
+        for obj in bucket.objects.all():
+            if obj.key.startswith(object_path):
+                folders.append(proj + '/' + obj.key)
+        #folders = self.S3.list_buckets()
         return folders
