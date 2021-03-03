@@ -14,7 +14,7 @@ class Local:
         ----------
         df: dataframe object
         proj: project name 
-        exp: experiment name
+        experiment: experiment name
         tag: custom commit message
         filename: filename to be saved locally
         """
@@ -28,7 +28,7 @@ class Local:
         ----------
         df_metadata: json object containing experiment metadata
         proj: project name 
-        exp: experiment name
+        experiment: experiment name
         tag: custom commit message
         """
         with open("{}/{}/{}/df_summary.json".format(proj, experiment, tag), 'w') as outfile:
@@ -42,7 +42,7 @@ class Local:
         ----------
         pickle_object: model that has been serialized into a pickle object
         proj: project name 
-        exp: experiment name
+        experiment: experiment name
         tag: custom commit message
         filename: filename to be exported
         """
@@ -68,8 +68,16 @@ class Local:
         return folders
     
     def build_path(self, proj, experiment, tag):
+        """
+        sets up a folder directory within local storage to push metadata to
+
+        Parameters
+        ----------
+        proj: project name 
+        experiment: experiment name
+        tag: custom commit message
+        """
         try:
             os.makedirs("{}/{}/{}".format(proj, experiment, tag))
         except OSError:
-            #"The directory waterflow-tagr/sunrise/testlocal already exists. If using the tag argument, please provide a new unique identifier"
             logger.info("The directory %s already exists. If using the tag argument, please provide a new unique identifier." % "{}/{}/{}".format(proj, experiment, tag))
