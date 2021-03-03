@@ -40,7 +40,7 @@ class Aws:
         ----------
         df_metadata: json object containing experiment metadata
         proj: project name on metadata provider
-        exp: experiment name
+        experiment: experiment name
         tag: custom commit message
         """
         self.S3.Object(proj, "{}/{}/df_summary.json".format(exp, tag)).put(
@@ -56,7 +56,7 @@ class Aws:
         ----------
         pickle_object: model that has been serialized into a pickle object
         proj: project name on metadata provider
-        exp: experiment name
+        experiment: experiment name
         tag: custom commit message
         filename: filename to be exported
         """
