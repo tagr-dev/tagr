@@ -43,7 +43,7 @@ class Aws:
         experiment: experiment name
         tag: custom commit message
         """
-        self.S3.Object(proj, "{}/{}/df_summary.json".format(exper, tag)).put(
+        self.S3.Object(proj, "{}/{}/df_summary.json".format(experiment, tag)).put(
             Body=(bytes(json.dumps(df_metadata, cls=NpEncoder).encode("UTF-8"))),
             ContentType="application/json",
         )
