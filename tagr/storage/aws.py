@@ -65,7 +65,6 @@ class Aws:
         )
 
     def list(self, proj, experiment, tag):
-        
         '''
         gets list of files/folders located at {proj}/{experiment}/{tag}
 
@@ -75,11 +74,8 @@ class Aws:
         experiment: experiment name 
         tag: custom commit message (optional)
         '''
-        
         object_path = experiment
         if tag:
             object_path += ('/' + tag)
 
         return aws_helper.get_list_of_tables(proj, object_path)
-
-    
