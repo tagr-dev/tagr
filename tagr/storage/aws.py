@@ -5,11 +5,11 @@ Aws S3 class implementation
 import json
 from io import StringIO
 import boto3
-
+from tagr.storage.aws_helper import AwsHelper
 from tagr.utils import NpEncoder
 
 csv_buffer = StringIO()
-
+aws_helper = AwsHelper()
 
 class Aws:
     def __init__(self):
@@ -65,6 +65,7 @@ class Aws:
         )
 
     def list(self, proj, experiment, tag):
+        
         '''
         gets list of files/folders located at {proj}/{experiment}/{tag}
 
@@ -74,15 +75,11 @@ class Aws:
         experiment: experiment name 
         tag: custom commit message (optional)
         '''
-        folders = []
+        
         object_path = experiment
         if tag:
             object_path += ('/' + tag)
 
-        bucket = self.S3.Bucket(proj)
-        
-        for obj in bucket.objects.all():
-            if obj.key.startswith(object_path):
-                folders.append(proj + '/' + obj.key)
-        #folders = self.S3.list_buckets()
-        return folders
+        return aws_helper.get_list_of_tables(proj, object_path)
+
+    
