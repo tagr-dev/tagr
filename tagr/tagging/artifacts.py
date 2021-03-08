@@ -164,7 +164,7 @@ class Tags(object):
         for model in models:
             model_object = summary["artifact"].loc[model]
             pickle_byte_obj = pickle.dumps(model_object)
-            logger.info("pushing " + str(model) + "metadata json to S3")
+            logger.info("flushing " + str(model) + "metadata json to S3")
             self.storage_provider.dump_pickle(pickle_byte_obj, proj, experiment, tag, model)
 
     def list(self, proj, experiment, tag="", dump='local'):
