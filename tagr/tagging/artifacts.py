@@ -88,7 +88,7 @@ class Tags(object):
         Parameters
         ----------
         proj: project name on metadata provider
-        exp: experiment name
+        experiment: experiment name
         tag: custom commit message
         dump: destination for experiment data to be dumped ('aws', 'gcp', 'azure', 'local')
             - for dump, asssume local by default if destination not provided
@@ -174,8 +174,9 @@ class Tags(object):
         Parameters
         ----------
         proj: project name on metadata provider
-        dir: directory path to look up
-        dump: destination for experiment data to be fetched from ('aws', 'gcp', 'azure', 'local')
+        experiment: experiment name
+        tag: custom commit message (optional)
+        dump: destination for experiment data to be fetched from ('aws', 'local')
             - for dump, asssume local by default if destination not provided
         """
         # determine which storage provider to use
