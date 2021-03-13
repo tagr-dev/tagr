@@ -3,13 +3,13 @@ Aws S3 class implementation
 """
 
 import json
-from io import StringIO
 import boto3
+
+from io import StringIO
 from tagr.storage.aws_helper import AwsHelper
 from tagr.utils import NpEncoder
 
 csv_buffer = StringIO()
-aws_helper = AwsHelper()
 
 class Aws:
     def __init__(self):
@@ -64,16 +64,16 @@ class Aws:
             Body=pickle_object
         )
 
-    def list(self, proj, experiment, tag):
-        '''
+    def __list(self, proj, experiment, tag):
+        aws_helper = AwsHelper()
+        """
         gets list of files/folders located at {proj}/{experiment}/{tag}
-
         Parameters
         __________
         proj: project name (s3 bucket name)
         experiment: experiment name 
         tag: custom commit message (optional)
-        '''
+        """
         object_path = experiment
         if tag:
             object_path += ('/' + tag)

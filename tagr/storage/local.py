@@ -50,8 +50,8 @@ class Local:
             "{}/{}/{}/{}.pkl".format(proj, experiment, tag, filename), "wb"
         ))
     
-    def list(self, proj, experiment, tag):
-        '''
+    def __list(self, proj, experiment, tag):
+        """
         gets list of files/folders located at {proj}/{experiment}/{tag}
 
         Parameters
@@ -59,7 +59,7 @@ class Local:
         proj: project name
         experiment: experiment name
         tag: custom commit message (optional)
-        '''
+        """
         path = proj + "/" + experiment
         if tag:
             path += ('/' + tag)

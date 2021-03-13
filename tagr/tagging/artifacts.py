@@ -186,5 +186,3 @@ class Tags(object):
             self.storage_provider = Local()
             
         return self.storage_provider.list(proj, experiment, tag)
-        #return self.storage_provider.fetch(proj, path)
-
