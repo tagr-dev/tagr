@@ -30,11 +30,9 @@ class AwsHelper:
 
         while True:
 
-            # The S3 API response is a large blob of metadata.
+            # The S3 API response is a large dict of metadata.
             # 'Contents' contains information about the listed objects.
             resp = s3.list_objects_v2(**kwargs)
-            print("s3 response")
-            print(resp)
 
             try:
                 contents = resp['Contents']
