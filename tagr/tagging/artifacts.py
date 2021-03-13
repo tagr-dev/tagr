@@ -166,3 +166,32 @@ class Tags(object):
             pickle_byte_obj = pickle.dumps(model_object)
             logger.info("flushing " + str(model) + "metadata json to S3")
             self.storage_provider.dump_pickle(pickle_byte_obj, proj, experiment, tag, model)
+
+    def list(self, proj, experiment, tag="", dump='local'):
+        """
+        fetches previously flushed experiments
+        Parameters
+        ----------
+        proj: project name on metadata provider
+        experiment: experiment name
+        tag: custom commit message (optional)
+        dump: destination for experiment data to be fetched from ('aws', 'local')
+            - for dump, asssume local by default if destination not provided
+        """
+        # determine which storage provider to use
+        if dump == 'aws':
+            self.storage_provider = Aws()
+        elif dump == 'local':
+            self.storage_provider = Local()
+
+        return self.storage_provider.list(proj, experiment, tag)
+        #return self.storage_provider.fetch(proj, path)
+
+
+    def fetch(self, proj, experiment, tag, filename, dump='local'):
+        if dump == 'aws':
+            self.storage_provider = Aws()
+        elif dump == 'local':
+            self.storage_provider = Local()
+
+        return self.storage_provider.fetch(proj, experiment, tag, filename)

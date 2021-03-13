@@ -64,3 +64,21 @@ class Local:
             os.makedirs("{}/{}/{}".format(proj, experiment, tag))
         except OSError:
             logger.info("The directory %s already exists. If using the tag argument, please provide a new unique identifier." % "{}/{}/{}".format(proj, experiment, tag))
+
+    def list(self, proj, experiment, tag):
+        '''
+        gets list of files/folders located at {proj}/{experiment}/{tag}
+        Parameters
+        __________
+        proj: project name
+        experiment: experiment name
+        tag: custom commit message (optional)
+        '''
+        path = proj + "/" + experiment
+        if tag:
+            path += ('/' + tag)
+
+        folders = os.listdir(path)
+        return folders
+
+
