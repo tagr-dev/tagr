@@ -50,7 +50,7 @@ class Local:
             "{}/{}/{}/{}.pkl".format(proj, experiment, tag, filename), "wb"
         ))
     
-    def __list(self, proj, experiment, tag):
+    def _Tags__list(self, proj, experiment, tag):
         """
         gets list of files/folders located at {proj}/{experiment}/{tag}
 

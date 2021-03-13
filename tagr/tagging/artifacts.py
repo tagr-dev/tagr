@@ -185,4 +185,4 @@ class Tags(object):
         elif dump == 'local':
             self.storage_provider = Local()
             
-        return self.storage_provider.list(proj, experiment, tag)
+        return self.storage_provider.__list(proj, experiment, tag)

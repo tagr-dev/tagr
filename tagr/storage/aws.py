@@ -64,7 +64,7 @@ class Aws:
             Body=pickle_object
         )
 
-    def __list(self, proj, experiment, tag):
+    def _Tags__list(self, proj, experiment, tag):
         aws_helper = AwsHelper()
         """
         gets list of files/folders located at {proj}/{experiment}/{tag}
