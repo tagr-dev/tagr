@@ -79,7 +79,7 @@ class Tags(object):
             {"artifact": artifact, "type": types}, index=EXP_OBJECTS + cust_keys
         )
 
-    def flush(self, proj, experiment, dump='local', tag=None):
+    def flush(self, proj, experiment, tag=None, dump='local'):
         """
         Pushes all variables from `queue` to metadata store.
         Generates metadata for artifacts of type pd.Dataframe in JSON
@@ -167,7 +167,7 @@ class Tags(object):
             logger.info("flushing " + str(model) + "metadata json to S3")
             self.storage_provider.dump_pickle(pickle_byte_obj, proj, experiment, tag, model)
 
-    def list(self, proj, experiment, tag="", dump='local'):
+    def list(self, proj, experiment, tag=None, dump='local'):
         """
         fetches previously flushed experiments
 

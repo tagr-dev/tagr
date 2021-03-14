@@ -65,7 +65,6 @@ class Aws:
         )
 
     def _Tags__list(self, proj, experiment, tag):
-        aws_helper = AwsHelper()
         """
         gets list of files/folders located at {proj}/{experiment}/{tag}
         Parameters
@@ -74,6 +73,7 @@ class Aws:
         experiment: experiment name 
         tag: custom commit message (optional)
         """
+        aws_helper = AwsHelper()
         object_path = experiment
         if tag:
             object_path += ('/' + tag)
