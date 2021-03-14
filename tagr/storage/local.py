@@ -47,11 +47,6 @@ class Local:
         tag: custom commit message
         filename: filename to be exported
         """
-        '''
-        pickle.dumps(pickle_object, open(
-            "{}/{}/{}/{}.pkl".format(proj, experiment, tag, filename), "wb"
-        ))
-        '''
         pickle.dump(model, open("{}/{}/{}/{}.pkl".format(proj, experiment, tag, filename), 'wb'))
     
     def _Tags__list(self, proj, experiment, tag):
