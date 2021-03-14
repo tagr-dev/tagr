@@ -88,7 +88,7 @@ class Tags(object):
         Parameters
         ----------
         proj: project name on metadata provider
-        exp: experiment name
+        experiment: experiment name
         tag: custom commit message
         dump: destination for experiment data to be dumped ('aws', 'gcp', 'azure', 'local')
             - for dump, asssume local by default if destination not provided
@@ -184,9 +184,7 @@ class Tags(object):
         elif dump == 'local':
             self.storage_provider = Local()
 
-        return self.storage_provider.list(proj, experiment, tag)
-        #return self.storage_provider.fetch(proj, path)
-
+        return self.storage_provider.__list(proj, experiment, tag)
 
     def fetch(self, proj, experiment, tag, filename, dump='local'):
         if dump == 'aws':
@@ -194,4 +192,5 @@ class Tags(object):
         elif dump == 'local':
             self.storage_provider = Local()
 
-        return self.storage_provider.fetch(proj, experiment, tag, filename)
+        return self.storage_provider.__fetch(proj, experiment, tag, filename)
+

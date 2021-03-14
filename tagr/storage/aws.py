@@ -3,13 +3,13 @@ Aws S3 class implementation
 """
 
 import json
-from io import StringIO
 import boto3
 
+from io import StringIO
+from tagr.storage.aws_helper import AwsHelper
 from tagr.utils import NpEncoder
 
 csv_buffer = StringIO()
-
 
 class Aws:
     def __init__(self):
@@ -43,7 +43,7 @@ class Aws:
         experiment: experiment name
         tag: custom commit message
         """
-        self.S3.Object(proj, "{}/{}/df_summary.json".format(exper, tag)).put(
+        self.S3.Object(proj, "{}/{}/df_summary.json".format(experiment, tag)).put(
             Body=(bytes(json.dumps(df_metadata, cls=NpEncoder).encode("UTF-8"))),
             ContentType="application/json",
         )
@@ -63,3 +63,19 @@ class Aws:
         self.S3.Object(proj, "{}/{}/{}.pkl".format(experiment, tag, filename)).put(
             Body=pickle_object
         )
+
+    def _Tags__list(self, proj, experiment, tag):
+        aws_helper = AwsHelper()
+        """
+        gets list of files/folders located at {proj}/{experiment}/{tag}
+        Parameters
+        __________
+        proj: project name (s3 bucket name)
+        experiment: experiment name 
+        tag: custom commit message (optional)
+        """
+        object_path = experiment
+        if tag:
+            object_path += ('/' + tag)
+
+        return aws_helper.get_list_of_tables(proj, object_path)
