@@ -50,6 +50,23 @@ class Local:
             "{}/{}/{}/{}.pkl".format(proj, experiment, tag, filename), "wb"
         ))
     
+    def _Tags__list(self, proj, experiment, tag):
+        """
+        gets list of files/folders located at {proj}/{experiment}/{tag}
+
+        Parameters
+        __________
+        proj: project name
+        experiment: experiment name
+        tag: custom commit message (optional)
+        """
+        path = proj + "/" + experiment
+        if tag:
+            path += ('/' + tag)
+    
+        folders = os.listdir(path)
+        return folders
+    
     def build_path(self, proj, experiment, tag):
         """
         sets up a folder directory within local storage to push metadata to
