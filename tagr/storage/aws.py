@@ -4,6 +4,7 @@ Aws S3 class implementation
 
 import json
 import boto3
+import pickle
 
 from io import StringIO
 from tagr.storage.aws_helper import AwsHelper
@@ -48,7 +49,7 @@ class Aws:
             ContentType="application/json",
         )
 
-    def dump_pickle(self, pickle_object, proj, experiment, tag, filename):
+    def dump_pickle(self, model, proj, experiment, tag, filename):
         """
         turns dataframe into csv and saves it to s3 directory
 
@@ -60,10 +61,11 @@ class Aws:
         tag: custom commit message
         filename: filename to be exported
         """
+        pickle_object = pickle.dumps(model)
         self.S3.Object(proj, "{}/{}/{}.pkl".format(experiment, tag, filename)).put(
             Body=pickle_object
         )
-
+        
     def _Tags__list(self, proj, experiment, tag):
         aws_helper = AwsHelper()
         """
@@ -79,3 +81,17 @@ class Aws:
             object_path += ('/' + tag)
 
         return aws_helper.get_list_of_tables(proj, object_path)
+    
+    def _Tags__fetch(self, proj, experiment, tag, filename):
+        """
+        fetches object located at {proj}/{experiment}/{tag}/{filename}
+        Parameters
+        __________
+        proj: project name (s3 bucket name)
+        experiment: experiment name 
+        tag: custom commit message 
+        filename: name of file to be fetched (either a .csv or .pkl file)
+        """
+        aws_helper = AwsHelper()
+        object_path = experiment + "/" + tag + "/" + filename
+        return aws_helper.get_object(proj, object_path)
