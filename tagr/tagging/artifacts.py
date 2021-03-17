@@ -163,14 +163,12 @@ class Tags(object):
 
         for model in models:
             model_object = summary["artifact"].loc[model]
-            pickle_byte_obj = pickle.dumps(model_object)
             logger.info("flushing " + str(model) + "metadata json to S3")
-            self.storage_provider.dump_pickle(pickle_byte_obj, proj, experiment, tag, model)
+            self.storage_provider.dump_pickle(model_object, proj, experiment, tag, model)
 
     def list(self, proj, experiment, tag=None, dump='local'):
         """
         fetches previously flushed experiments
-
         Parameters
         ----------
         proj: project name on metadata provider
@@ -184,5 +182,14 @@ class Tags(object):
             self.storage_provider = Aws()
         elif dump == 'local':
             self.storage_provider = Local()
-            
+
         return self.storage_provider.__list(proj, experiment, tag)
+
+    def fetch(self, proj, experiment, tag, filename, dump='local'):
+        if dump == 'aws':
+            self.storage_provider = Aws()
+        elif dump == 'local':
+            self.storage_provider = Local()
+
+        return self.storage_provider.__fetch(proj, experiment, tag, filename)
+

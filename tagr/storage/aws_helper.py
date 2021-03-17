@@ -3,6 +3,9 @@ code heavy helper functions for Aws.py
 """
 
 import boto3
+import json
+import pandas as pd
+import pickle
 
 class AwsHelper:
     def get_matching_s3_objects(self, bucket, object_path='', max_keys_per_request=1):
@@ -82,3 +85,25 @@ class AwsHelper:
                 s3_objects.append(bucket + '/' + full_object_path)
 
         return s3_objects
+
+    def get_object(self, bucket, object_path):
+        """
+        Helper method to fetch .csv or .pkl object from s3
+
+        Parameters
+        ----------
+        bucket: name of s3 bucket (project)
+        object_path: Path that leads to the object being fetched
+        """
+        s3 = boto3.client('s3')
+        response = s3.get_object(
+            Bucket = bucket,
+            Key = object_path
+        )
+
+        if object_path.endswith('.csv'):
+            obj = pd.read_csv(response['Body'])
+        else:
+            serialized_model = response['Body'].read()
+            obj = pickle.loads(serialized_model)
+        return obj
