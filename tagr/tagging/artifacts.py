@@ -10,7 +10,7 @@ from tagr.storage.local import Local
 logger = logging.getLogger("tagging_artifact")
 
 
-class Tags(object):
+class Tagr(object):
     def __init__(self):
         self.queue = {}
         self.cust_queue = {}

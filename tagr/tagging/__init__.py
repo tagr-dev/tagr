@@ -1,1 +1,1 @@
-from tagr.tagging.artifacts import Tags
+from tagr.tagging.artifacts import Tagr

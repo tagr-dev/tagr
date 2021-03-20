@@ -66,7 +66,7 @@ class Aws:
             Body=pickle_object
         )
         
-    def _Tags__list(self, proj, experiment, tag):
+    def _Tagr__list(self, proj, experiment, tag):
         """
         gets list of files/folders located at {proj}/{experiment}/{tag}
         Parameters
@@ -82,7 +82,7 @@ class Aws:
 
         return aws_helper.get_list_of_tables(proj, object_path)
     
-    def _Tags__fetch(self, proj, experiment, tag, filename):
+    def _Tagr__fetch(self, proj, experiment, tag, filename):
         """
         fetches object located at {proj}/{experiment}/{tag}/{filename}
         Parameters
