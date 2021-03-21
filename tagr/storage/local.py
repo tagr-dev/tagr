@@ -49,7 +49,7 @@ class Local:
         """
         pickle.dump(model, open("{}/{}/{}/{}.pkl".format(proj, experiment, tag, filename), 'wb'))
     
-    def _Tags__list(self, proj, experiment, tag):
+    def _Tagr__list(self, proj, experiment, tag):
         """
         gets list of files/folders located at {proj}/{experiment}/{tag}
 
@@ -66,7 +66,7 @@ class Local:
         folders = os.listdir(path)
         return folders
 
-    def _Tags__fetch(self, proj, experiment, tag, filename):
+    def _Tagr__fetch(self, proj, experiment, tag, filename):
         path = proj + "/" + experiment + "/" + tag + "/" + filename
         if path.endswith(".csv"):
             obj = pd.read_csv(path)
