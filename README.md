@@ -1,4 +1,4 @@
-# tagr
+164650090_492997478504073_2479284815683655973_n.png![image](https://user-images.githubusercontent.com/22218872/112725332-0dcf9280-8eee-11eb-9797-4479dd08c495.png)
 A cloud agnostic data science productivity tool that will:
 - help streamline the data science experimentation process
 - allow data scientists to manage models and experiment data
