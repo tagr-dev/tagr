@@ -26,7 +26,7 @@ class Tagr(object):
         obj: str. type of variable to be store.
             Choice of config.OBJECTS
             If you pass a string not in config.OBJECTS
-            WaterFlow will store the object under the cust dir
+            Tagr will store the object under the cust dir
         dtype: type or None, Default None
             used for storing custom variables not in OBJECTS
             Behavior as follows:

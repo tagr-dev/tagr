@@ -18,11 +18,12 @@ jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --allow-root &
 # Instructions
 1. Import tagr 
 ```
-from tagr.tagging.artifacts import Tags
+from tagr.tagging.artifacts import Tagr
 from tagr.config import EXP_OBJECTS, OBJECTS
 ```
 2. After building your model and performing exploratory data analysis of your dataset, tag your training/testing/prediction datasets and model
 ```
+tag = Tagr()
 x = tag.save(mock_df1, "X_train", "int")
 y = tag.save(mock_df2, "y_train")
 model = tag.save(RandomForestClassifier(max_depth=30), "model")
@@ -38,9 +39,9 @@ tag.inspect()
 4. Push all your tagged artifacts to a cloud storage solution of your choice
 ```
 # s3
-tag.flush('waterflow-tagr', 'dev/eric', 'aws', 'demo')
+tag.flush('tagr-dev', 'dev/eric', 'aws', 'demo')
 
 # local
-tag.flush('waterflow-tagr', 'eric', 'demo')
+tag.flush('tagr-dev', 'eric', 'demo')
 
 ```
