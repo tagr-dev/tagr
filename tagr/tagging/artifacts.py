@@ -11,21 +11,25 @@ logger = logging.getLogger("tagging_artifact")
 
 
 class Artifact():
-    def __init__(self, val, obj, dtype = None) :
+    def __init__(self, val, obj_name, dtype = None) :
         self.val = val 
-        self.obj = obj
-        self.dtype = dtype
+        self.obj_name = obj_name
+
+        if dtype:
+            self.dtype = dtype
+        else:
+            self.dtype = OBJECTS[obj_name]
 
     def __repr__(self):
-        return "val: {0}, obj: {1}, dtype: {2}".format(self.val, self.obj, self.dtype)
+        return "val: {0}, obj_name: {1}, dtype: {2}".format(self.val, self.obj_name, self.dtype)
 
 class Tagr(object):
     def __init__(self):
-        self.queue = []
+        self.queue = {}
         self.cust_queue = {}
         self.storage_provider = Local()
 
-    def save(self, artifact, obj: str, dtype: str = None):
+    def save(self, artifact, obj_name: str, dtype: str = None):
         """
         Tags a variable as something to be saved
 
@@ -53,40 +57,29 @@ class Tagr(object):
         -------
         `artifact` to preserve declarative interface
         """
-
-        if obj in OBJECTS:
-            self.queue.append(Artifact(artifact, obj))
+        if obj_name in OBJECTS:
+            self.queue[obj_name ] = Artifact(artifact, obj_name)
         elif not dtype:
             raise ValueError("dtype must be provided if custom obj")
         else:
-            self.cust_queue[obj] = (artifact, dtype)
+            self.queue[obj_name] = Artifact(artifact, obj_name, dtype)
 
         return artifact
 
     def ret_queue(self) -> dict:
         return self.queue
-
-    # todo take rows youd like to see as argument
-    # todo add shape for pd dataframe
-    # todo col for varaible name. %who, local(), dir()
+    
     def inspect(self):
         """
-        Returns pd.Dataframe of tagged variables and their values.
-        Missing variables will have `NaN` value
+        Returns pd.Dataframe of tagged variables and their values
         """
-        cust_keys = list(self.cust_queue.keys())
-
-        artifact = [self.queue.get(artif) for artif in EXP_OBJECTS] + [
-            self.cust_queue.get(artif)[0] for artif in self.cust_queue
-        ]
-
-        types = EXP_OBJECT_TYPES + [
-            self.cust_queue.get(artif)[1] for artif in self.cust_queue
-        ]
+        data = []
+        for k, artifact in self.queue.items():
+            data.append([artifact.obj_name, artifact.val, artifact.dtype])
 
         return pd.DataFrame(
-            {"artifact": artifact, "type": types}, index=EXP_OBJECTS + cust_keys
-        )
+            data, columns = ['obj_name', 'val', 'dtype']
+            )
 
     def flush(self, proj, experiment, tag=None, dump='local'):
         """
@@ -102,7 +95,6 @@ class Tagr(object):
         dump: destination for experiment data to be dumped ('aws', 'gcp', 'azure', 'local')
             - for dump, asssume local by default if destination not provided
         """
-        # todo create metadata provider file to hook into s3 and blob
         
         # use datetime as index if tag name not provided
         if not tag:
@@ -122,17 +114,17 @@ class Tagr(object):
         #####################
         logger.info("generating metadata json file")
         summary = self.inspect()
-        # filter for not null df elements
-        df_names = list(
-            summary[
-                (pd.notnull(summary["artifact"])) & (summary["type"] == "dataframe")
-                ].index
-        )
+        # # filter for not null df elements
+        # df_names = list(
+        #     summary[
+        #         (pd.notnull(summary["artifact"])) & (summary["type"] == "dataframe")
+        #         ].index
+        # )
 
         col_types_dict = {}
         col_stats_dict = {}
 
-        logger.info("collecting dataframe types and summary stats for json")
+        logger.info("collecting dataframe types and summary stats for json file")
         for df_name in df_names:
             df = summary["artifact"].loc[df_name]
             col_types_dict[df_name] = dict(zip(df.columns, df.dtypes.map(lambda x: x.name)))
@@ -143,7 +135,6 @@ class Tagr(object):
             #############
             # todo: save larger dfs as parquet, maybe partition as well
             logger.info("flushing dataframes as csv to " + str(dump))
-            # push csv
             self.storage_provider.dump_csv(df, proj, experiment, tag, df_name)
 
         nums_and_strings = list(
