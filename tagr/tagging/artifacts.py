@@ -10,9 +10,18 @@ from tagr.storage.local import Local
 logger = logging.getLogger("tagging_artifact")
 
 
+class Artifact():
+    def __init__(self, val, obj, dtype = None) :
+        self.val = val 
+        self.obj = obj
+        self.dtype = dtype
+
+    def __repr__(self):
+        return "val: {0}, obj: {1}, dtype: {2}".format(self.val, self.obj, self.dtype)
+
 class Tagr(object):
     def __init__(self):
-        self.queue = {}
+        self.queue = []
         self.cust_queue = {}
         self.storage_provider = Local()
 
@@ -46,7 +55,7 @@ class Tagr(object):
         """
 
         if obj in OBJECTS:
-            self.queue[obj] = artifact
+            self.queue.append(Artifact(artifact, obj))
         elif not dtype:
             raise ValueError("dtype must be provided if custom obj")
         else:
