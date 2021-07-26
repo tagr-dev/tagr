@@ -11,7 +11,7 @@ make
 ```
 2. Spin up a jupyter notebook in the container
 ```
-jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --allow-root
+jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --allow-root &
 ```
 3. Test
 
