@@ -15,6 +15,7 @@ csv_buffer = StringIO()
 class Aws:
     def __init__(self):
         self.S3 = boto3.resource("s3")
+        self.name = 'AWS'
 
     def dump_csv(self, df, proj, experiment, tag, filename):
         """

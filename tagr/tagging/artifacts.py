@@ -118,10 +118,10 @@ class Tagr(object):
         # generate metadata #
         #####################
         summary = self.inspect()
-        self._flush_dfs(summar, experiment_params)
+        self._flush_dfs(summary, experiment_params)
 
         nums_and_strings = list(
-            summary[summary["type"].isin(["int", "float", "str"])].index
+            summary[summary["dtype"].isin(["int", "float", "str"])].index
         )
 
         nums_and_strings_dict = {}
@@ -132,8 +132,8 @@ class Tagr(object):
             nums_and_strings_dict[i] = num_or_str
 
         df_metadata = {
-            "types": col_types_dict,
-            "stats": col_stats_dict,
+            "types": self.col_types_dict,
+            "stats": self.col_stats_dict,
             "nums_and_strings": nums_and_strings_dict,
         }
 
@@ -173,7 +173,7 @@ class Tagr(object):
             )
             self.col_stats_dict[df_name] = df.describe().to_dict()
 
-            logger.info("flushing dataframes as csv to " + str(dump))
+            logger.info("flushing dataframes as csv to " + self.storage_provider.name)
             self.storage_provider.dump_csv(
                 df,
                 experiment_params["proj"],
