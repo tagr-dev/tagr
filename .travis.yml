@@ -3,4 +3,6 @@ python:
   - "3.9"
 install:
 - pip install -r requirements.txt 
+script:
+ - python test/unit/sample_test.py
 cache: pip
