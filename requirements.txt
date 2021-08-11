@@ -1,6 +1,7 @@
 numpy >=1.15
 pandas
 boto3
+black
 s3fs
 pylint
 jupyter

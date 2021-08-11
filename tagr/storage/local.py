@@ -7,6 +7,8 @@ import pandas as pd
 logger = logging.getLogger("saving experiment to local storage")
 
 class Local:
+    name = 'Local'
+
     def dump_csv(self, df, proj, experiment, tag, filename):
         """
         turns dataframe into csv and saves it to local storage

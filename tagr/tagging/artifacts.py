@@ -10,13 +10,35 @@ from tagr.storage.local import Local
 logger = logging.getLogger("tagging_artifact")
 
 
+class Artifact:
+    def __init__(self, val, obj_name, dtype=None):
+        self.val = val
+        self.obj_name = obj_name
+
+        if dtype:
+            self.dtype = dtype
+        else:
+            self.dtype = OBJECTS[obj_name]
+
+        if self.dtype in OBJECTS:
+            self.dtype = OBJECTS[self.dtype]
+
+    def __repr__(self):
+        return "val: {0}, obj_name: {1}, dtype: {2}".format(
+            self.val, self.obj_name, self.dtype
+        )
+
+
 class Tagr(object):
     def __init__(self):
         self.queue = {}
         self.cust_queue = {}
         self.storage_provider = Local()
 
-    def save(self, artifact, obj: str, dtype: str = None):
+        self.col_types_dict = {}
+        self.col_stats_dict = {}
+
+    def save(self, artifact, obj_name: str, dtype: str = None):
         """
         Tags a variable as something to be saved
 
@@ -26,7 +48,7 @@ class Tagr(object):
         obj: str. type of variable to be store.
             Choice of config.OBJECTS
             If you pass a string not in config.OBJECTS
-            WaterFlow will store the object under the cust dir
+            Tagr will store the object under the cust dir
         dtype: type or None, Default None
             used for storing custom variables not in OBJECTS
             Behavior as follows:
@@ -44,42 +66,29 @@ class Tagr(object):
         -------
         `artifact` to preserve declarative interface
         """
-
-        if obj in OBJECTS:
-            self.queue[obj] = artifact
+        if obj_name in OBJECTS:
+            self.queue[obj_name] = Artifact(artifact, obj_name)
         elif not dtype:
             raise ValueError("dtype must be provided if custom obj")
         else:
-            self.cust_queue[obj] = (artifact, dtype)
+            self.queue[obj_name] = Artifact(artifact, obj_name, dtype)
 
         return artifact
 
     def ret_queue(self) -> dict:
         return self.queue
 
-    # todo take rows youd like to see as argument
-    # todo add shape for pd dataframe
-    # todo col for varaible name. %who, local(), dir()
     def inspect(self):
         """
-        Returns pd.Dataframe of tagged variables and their values.
-        Missing variables will have `NaN` value
+        Returns pd.Dataframe of tagged variables and their values
         """
-        cust_keys = list(self.cust_queue.keys())
+        data = []
+        for k, artifact in self.queue.items():
+            data.append([artifact.obj_name, artifact.val, artifact.dtype])
 
-        artifact = [self.queue.get(artif) for artif in EXP_OBJECTS] + [
-            self.cust_queue.get(artif)[0] for artif in self.cust_queue
-        ]
+        return pd.DataFrame(data, columns=["obj_name", "val", "dtype"])
 
-        types = EXP_OBJECT_TYPES + [
-            self.cust_queue.get(artif)[1] for artif in self.cust_queue
-        ]
-
-        return pd.DataFrame(
-            {"artifact": artifact, "type": types}, index=EXP_OBJECTS + cust_keys
-        )
-
-    def flush(self, proj, experiment, tag=None, dump='local'):
+    def flush(self, proj, experiment, tag=None, dump="local"):
         """
         Pushes all variables from `queue` to metadata store.
         Generates metadata for artifacts of type pd.Dataframe in JSON
@@ -93,80 +102,116 @@ class Tagr(object):
         dump: destination for experiment data to be dumped ('aws', 'gcp', 'azure', 'local')
             - for dump, asssume local by default if destination not provided
         """
-        # todo create metadata provider file to hook into s3 and blob
-        
+
         # use datetime as index if tag name not provided
         if not tag:
             logger.info("using datetime as tag")
             tag = str(datetime.utcnow())
 
-        # determine which storage provider to use
-        if dump == 'aws':
+        if dump == "aws":
             self.storage_provider = Aws()
-        elif dump == 'local':
+        elif dump == "local":
             self.storage_provider = Local()
             # if folder directory doesnt exist, then create new directory
             self.storage_provider.build_path(proj, experiment, tag)
 
+        experiment_params = {"proj": proj, "experiment": experiment, "tag": tag}
+
         #####################
         # generate metadata #
         #####################
-        logger.info("generating metadata json file")
         summary = self.inspect()
-        # filter for not null df elements
-        df_names = list(
-            summary[
-                (pd.notnull(summary["artifact"])) & (summary["type"] == "dataframe")
-                ].index
-        )
+        self._flush_dfs(summary, experiment_params)
+        self._flush_metadata_json(summary, experiment_params)
+        self._flush_non_dfs(summary, experiment_params)
 
-        col_types_dict = {}
-        col_stats_dict = {}
+    def _get_primitive_objs_dict(self, summary) -> dict:
+        """
+        Collects all tagged primitive type objects in provided summary df.
 
-        logger.info("collecting dataframe types and summary stats for json")
-        for df_name in df_names:
-            df = summary["artifact"].loc[df_name]
-            col_types_dict[df_name] = dict(zip(df.columns, df.dtypes.map(lambda x: x.name)))
-            col_stats_dict[df_name] = df.describe().to_dict()
+        Parameters
+        ----------
+        summary: summary DataFrame of tagged variables returned from Tagr.inspect()
+        experiment_params: dict of experiment namespace variables
 
-            #############
-            # Push dfs #
-            #############
-            # todo: save larger dfs as parquet, maybe partition as well
-            logger.info("flushing dataframes as csv to " + str(dump))
-            # push csv
-            self.storage_provider.dump_csv(df, proj, experiment, tag, df_name)
+        Returns
+        -------
+        dict of key: obj name, val: obj
 
-        nums_and_strings = list(
-            summary[summary["type"].isin(["int", "float", "str"])].index
-        )
+        """
+        logger.info("collecting primitive objects for json file")
+        primitive_objs_dict = {}
+        summary_primitive_objs = summary[summary["dtype"] == "primitive"]
+        for i, row in summary_primitive_objs.iterrows():
+            primitive_objs_dict[row["obj_name"]] = row["val"]
 
-        nums_and_strings_dict = {}
+        return primitive_objs_dict
 
-        logger.info("collecting nums and strings for json")
-        for i in nums_and_strings:
-            num_or_str = summary["artifact"].loc[i]
-            nums_and_strings_dict[i] = num_or_str
+    def _flush_metadata_json(self, summary, experiment_params):
+        """
+        Collects names and values of tagged primitive objects and metadata dataframes.
+        Pushes to metadata provider as json
+        """
+        primitive_objs_dict = self._get_primitive_objs_dict(summary)
 
         df_metadata = {
-            "types": col_types_dict,
-            "stats": col_stats_dict,
-            "nums_and_strings": nums_and_strings_dict,
+            "types": self.col_types_dict,
+            "stats": self.col_stats_dict,
+            "primitive_objs": primitive_objs_dict,
         }
 
-        logger.info("flushing metadata json to " + str(dump))
+        logger.info("flushing metadata json to " + self.storage_provider.name)
+        self.storage_provider.dump_json(
+            df_metadata,
+            experiment_params["proj"],
+            experiment_params["experiment"],
+            experiment_params["tag"],
+        )
 
-        self.storage_provider.dump_json(df_metadata, proj, experiment, tag)
+    def _flush_dfs(self, summary, experiment_params):
+        """
+        Collects summary statistics for all tagged dataframes in provided summary df.
+        Saves statistics to `col_types_dict` and `col_types_dict` class attributes.
+        Pushes dataframes to metadata provider as csv
+        """
+        summary_dfs = summary[summary["dtype"] == "dataframe"]
 
-        logger.info("flushing models to " + str(dump))
-        models = list(summary[summary["type"] == "model"].index)
+        logger.info("collecting dataframe types and summary stats for json file")
+        for i, row in summary_dfs.iterrows():
+            df = row["val"]
+            df_name = row["obj_name"]
+            self.col_types_dict[df_name] = dict(
+                zip(df.columns, df.dtypes.map(lambda x: x.name))
+            )
+            self.col_stats_dict[df_name] = df.describe().to_dict()
 
-        for model in models:
-            model_object = summary["artifact"].loc[model]
-            logger.info("flushing " + str(model) + "metadata json to S3")
-            self.storage_provider.dump_pickle(model_object, proj, experiment, tag, model)
+            logger.info("flushing dataframes as csv to " + self.storage_provider.name)
+            self.storage_provider.dump_csv(
+                df,
+                experiment_params["proj"],
+                experiment_params["experiment"],
+                experiment_params["tag"],
+                df_name,
+            )
 
-    def list(self, proj, experiment, tag=None, dump='local'):
+    def _flush_non_dfs(self, summary, experiment_params):
+        """
+        Pushes all non dataframe, int, float and str objects to metadata provider as pickle
+        """
+        summary_objects = summary[summary["dtype"] != "dataframe"]
+        for i, row in summary_objects.iterrows():
+            obj = row["val"]
+            obj_name = row["obj_name"]
+            logger.info("flushing objects as pickle to " + self.storage_provider.name)
+            self.storage_provider.dump_pickle(
+                obj,
+                experiment_params["proj"],
+                experiment_params["experiment"],
+                experiment_params["tag"],
+                obj_name,
+            )
+
+    def list(self, proj, experiment, tag=None, dump="local"):
         """
         fetches previously flushed experiments
         Parameters
@@ -178,18 +223,17 @@ class Tagr(object):
             - for dump, asssume local by default if destination not provided
         """
         # determine which storage provider to use
-        if dump == 'aws':
+        if dump == "aws":
             self.storage_provider = Aws()
-        elif dump == 'local':
+        elif dump == "local":
             self.storage_provider = Local()
 
         return self.storage_provider.__list(proj, experiment, tag)
 
-    def fetch(self, proj, experiment, tag, filename, dump='local'):
-        if dump == 'aws':
+    def fetch(self, proj, experiment, tag, filename, dump="local"):
+        if dump == "aws":
             self.storage_provider = Aws()
-        elif dump == 'local':
+        elif dump == "local":
             self.storage_provider = Local()
 
         return self.storage_provider.__fetch(proj, experiment, tag, filename)
-
