@@ -20,6 +20,9 @@ class Artifact:
         else:
             self.dtype = OBJECTS[obj_name]
 
+        if self.dtype in OBJECTS:
+            self.dtype = OBJECTS[self.dtype]
+
     def __repr__(self):
         return "val: {0}, obj_name: {1}, dtype: {2}".format(
             self.val, self.obj_name, self.dtype
@@ -119,38 +122,57 @@ class Tagr(object):
         #####################
         summary = self.inspect()
         self._flush_dfs(summary, experiment_params)
+        self._flush_metadata_json(summary, experiment_params)
+        self._flush_non_dfs(summary, experiment_params)
 
-        nums_and_strings = list(
-            summary[summary["dtype"].isin(["int", "float", "str"])].index
-        )
+    def _get_primitive_objs_dict(self, summary) -> dict:
+        """
+        Collects all tagged primitive type objects in provided summary df.
 
-        nums_and_strings_dict = {}
+        Parameters
+        ----------
+        summary: summary DataFrame of tagged variables returned from Tagr.inspect()
+        experiment_params: dict of experiment namespace variables
 
-        logger.info("collecting nums and strings for json")
-        for i in nums_and_strings:
-            num_or_str = summary["artifact"].loc[i]
-            nums_and_strings_dict[i] = num_or_str
+        Returns
+        -------
+        dict of key: obj name, val: obj
+
+        """
+        logger.info("collecting primitive objects for json file")
+        primitive_objs_dict = {}
+        summary_primitive_objs = summary[summary["dtype"] == "primitive"]
+        for i, row in summary_primitive_objs.iterrows():
+            primitive_objs_dict[row["obj_name"]] = row["val"]
+
+        return primitive_objs_dict
+
+    def _flush_metadata_json(self, summary, experiment_params):
+        """
+        Collects names and values of tagged primitive objects and metadata dataframes.
+        Pushes to metadata provider as json
+        """
+        primitive_objs_dict = self._get_primitive_objs_dict(summary)
 
         df_metadata = {
             "types": self.col_types_dict,
             "stats": self.col_stats_dict,
-            "nums_and_strings": nums_and_strings_dict,
+            "primitive_objs": primitive_objs_dict,
         }
 
-        logger.info("flushing metadata json to " + str(dump))
-        self.storage_provider.dump_json(df_metadata, proj, experiment, tag)
-        self._flush_non_dfs(summary, experiment_params)
+        logger.info("flushing metadata json to " + self.storage_provider.name)
+        self.storage_provider.dump_json(
+            df_metadata,
+            experiment_params["proj"],
+            experiment_params["experiment"],
+            experiment_params["tag"],
+        )
 
     def _flush_dfs(self, summary, experiment_params):
         """
         Collects summary statistics for all tagged dataframes in provided summary df.
         Saves statistics to `col_types_dict` and `col_types_dict` class attributes.
         Pushes dataframes to metadata provider as csv
-
-        Parameters
-        ----------
-        summary: tagg varaibles summary DataFrame returned from Tagr.inspect()
-        experiment_params: dict of experiment namespace variables
         """
         summary_dfs = summary[summary["dtype"] == "dataframe"]
 
@@ -169,17 +191,12 @@ class Tagr(object):
                 experiment_params["proj"],
                 experiment_params["experiment"],
                 experiment_params["tag"],
-                df_name
+                df_name,
             )
 
     def _flush_non_dfs(self, summary, experiment_params):
         """
         Pushes all non dataframe, int, float and str objects to metadata provider as pickle
-
-        Parameters
-        ----------
-        summary: tagg varaibles summary DataFrame returned from Tagr.inspect()
-        experiment_params: dict of experiment namespace variables
         """
         summary_objects = summary[summary["dtype"] != "dataframe"]
         for i, row in summary_objects.iterrows():
@@ -191,7 +208,7 @@ class Tagr(object):
                 experiment_params["proj"],
                 experiment_params["experiment"],
                 experiment_params["tag"],
-                obj_name
+                obj_name,
             )
 
     def list(self, proj, experiment, tag=None, dump="local"):
