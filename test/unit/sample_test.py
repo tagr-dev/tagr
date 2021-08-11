@@ -1,1 +1,2 @@
 pass
+print('hi')
