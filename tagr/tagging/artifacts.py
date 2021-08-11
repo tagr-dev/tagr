@@ -138,18 +138,8 @@ class Tagr(object):
         }
 
         logger.info("flushing metadata json to " + str(dump))
-
         self.storage_provider.dump_json(df_metadata, proj, experiment, tag)
-
-        logger.info("flushing models to " + str(dump))
-        models = list(summary[summary["type"] == "model"].index)
-
-        for model in models:
-            model_object = summary["artifact"].loc[model]
-            logger.info("flushing " + str(model) + "metadata json to S3")
-            self.storage_provider.dump_pickle(
-                model_object, proj, experiment, tag, model
-            )
+        self._flush_non_dfs(summary, experiment_params)
 
     def _flush_dfs(self, summary, experiment_params):
         """
@@ -180,6 +170,28 @@ class Tagr(object):
                 experiment_params["experiment"],
                 experiment_params["tag"],
                 df_name
+            )
+
+    def _flush_non_dfs(self, summary, experiment_params):
+        """
+        Pushes all non dataframe, int, float and str objects to metadata provider as pickle
+
+        Parameters
+        ----------
+        summary: tagg varaibles summary DataFrame returned from Tagr.inspect()
+        experiment_params: dict of experiment namespace variables
+        """
+        summary_objects = summary[summary["dtype"] != "dataframe"]
+        for i, row in summary_objects.iterrows():
+            obj = row["val"]
+            obj_name = row["obj_name"]
+            logger.info("flushing objects as pickle to " + self.storage_provider.name)
+            self.storage_provider.dump_pickle(
+                obj,
+                experiment_params["proj"],
+                experiment_params["experiment"],
+                experiment_params["tag"],
+                obj_name
             )
 
     def list(self, proj, experiment, tag=None, dump="local"):
