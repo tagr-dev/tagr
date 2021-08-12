@@ -45,6 +45,6 @@ class TaggingTest(unittest.TestCase):
         self.tag.save(2, 'num1', 'int')
         self.tag.save('foo', 'str1', 'float')
         summary = self.tag.summary()
-        pd.assert_frame_equal(summary, expected_df)
+        pd._testing.assert_frame_equal(summary, expected_df)
 
     
