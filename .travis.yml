@@ -4,5 +4,5 @@ python:
 install:
 - pip install -r requirements.txt 
 script:
- - python test/unit/sample_test.py
+ - python test/unit/test_tagging.py
 cache: pip
