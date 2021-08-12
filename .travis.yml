@@ -3,6 +3,7 @@ python:
   - "3.9"
 install:
 - pip install -r requirements.txt 
+env: PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR/tests:$TRAVIS_BUILD_DIR/tagr
 script:
  - python test/unit/test_tagging.py
 cache: pip
