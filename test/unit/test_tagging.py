@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 
-from tagr.tagging import Tagr, artifacts
+from tagr.tagging import Tagr
 
 
 class TaggingTest(unittest.TestCase):
