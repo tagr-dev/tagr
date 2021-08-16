@@ -1,9 +1,9 @@
 import unittest
 import json
+import pickle
 from moto import mock_s3
 import boto3
 import pandas as pd
-import pickle
 
 from tagr.storage.aws import Aws
 
