@@ -56,26 +56,33 @@ class AwsTest(unittest.TestCase):
     def test_csv(self):
         expected_result = DF
 
-        file_name = 'test_df'
+        file_name = "test_df"
         conn = self.create_connection()
 
-        self.storage_provider.dump_csv(df=DF, proj=PROJ, experiment=EXPERIMENT, tag=TAG, filename=file_name)
-
-        res = (
-            conn.Object(PROJ, "{}/{}/{}.csv".format(EXPERIMENT, TAG, file_name))
-            .get()["Body"]
+        self.storage_provider.dump_csv(
+            df=DF, proj=PROJ, experiment=EXPERIMENT, tag=TAG, filename=file_name
         )
+
+        res = conn.Object(
+            PROJ, "{}/{}/{}.csv".format(EXPERIMENT, TAG, file_name)
+        ).get()["Body"]
         df_content = pd.read_csv(res, index_col=0)
         pd._testing.assert_frame_equal(expected_result, df_content)
 
     def test_pickle(self):
-        expected_result = {'test_key': 'test_val'}
-        
-        test_obj = {'test_key': 'test_val'}
-        file_name = 'test_dict'
+        expected_result = {"test_key": "test_val"}
+
+        test_obj = {"test_key": "test_val"}
+        file_name = "test_dict"
         conn = self.create_connection()
 
-        self.storage_provider.dump_pickle(model=test_obj, proj=PROJ, experiment=EXPERIMENT, tag=TAG, filename=file_name)
+        self.storage_provider.dump_pickle(
+            model=test_obj,
+            proj=PROJ,
+            experiment=EXPERIMENT,
+            tag=TAG,
+            filename=file_name,
+        )
 
         res = (
             conn.Object(PROJ, "{}/{}/{}.pkl".format(EXPERIMENT, TAG, file_name))
