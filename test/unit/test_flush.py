@@ -77,3 +77,61 @@ class FlushTest(unittest.TestCase):
         )
         json_content = json.loads(res)
         self.assertEqual(expected_result, json_content)
+
+    def test_flush_dfs(self):
+        expected_result = DF
+
+        conn = self.create_connection()
+
+        self.tag.save(DF, "df1", "dataframe")
+
+        summary = self.tag.summary()
+        self.tag._flush_dfs(summary, EXPERIMENT_PARAMS)
+
+        res = conn.Object(
+            EXPERIMENT_PARAMS["proj"],
+            "{}/{}/df1.csv".format(
+                EXPERIMENT_PARAMS["experiment"], EXPERIMENT_PARAMS["tag"]
+            ),
+        ).get()["Body"]
+        df_content = pd.read_csv(res, index_col=0)
+        pd._testing.assert_frame_equal(expected_result, df_content)
+
+    def test_flush_non_dfs(self):
+        expected_result_str = "a"
+        expected_result_int = 1
+
+        conn = self.create_connection()
+
+        self.tag.save("a", "str1", "str")
+        self.tag.save(1, "int1", "int")
+
+        summary = self.tag.summary()
+        self.tag._flush_non_dfs(summary, EXPERIMENT_PARAMS)
+
+        str_file = (
+            conn.Object(
+                EXPERIMENT_PARAMS["proj"],
+                "{}/{}/str1.pkl".format(
+                    EXPERIMENT_PARAMS["experiment"], EXPERIMENT_PARAMS["tag"]
+                ),
+            )
+            .get()["Body"]
+            .read()
+        )
+        str_content = pickle.loads(str_file)
+
+        int_file = (
+            conn.Object(
+                EXPERIMENT_PARAMS["proj"],
+                "{}/{}/int1.pkl".format(
+                    EXPERIMENT_PARAMS["experiment"], EXPERIMENT_PARAMS["tag"]
+                ),
+            )
+            .get()["Body"]
+            .read()
+        )
+        int_content = pickle.loads(int_file)
+
+        self.assertEqual(expected_result_str, str_content)
+        self.assertEqual(expected_result_int, int_content)
