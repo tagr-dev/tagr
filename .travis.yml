@@ -10,6 +10,10 @@ env:
     - AWS_SECRET_ACCESS_KEY=testing
     - AWS_SECURITY_TOKEN=testing
     - AWS_SESSION_TOKEN=testing
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script:
  - python -m unittest discover test/
 cache: pip
