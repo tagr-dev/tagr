@@ -4,4 +4,4 @@ build:
 	@echo "Building image..."
 	@docker build -t ${IMAGE} -f Dockerfile.dev .
 	@echo "Building image and opening shell..."
-	@docker run -it -p 8888:8888 -v ${PWD}:/app -w /app ${IMAGE} /bin/bash
+	@docker run --env PYTHONPATH="${PYTHONPATH}:/app" -it -p 8888:8888 -v ${PWD}:/app -w /app ${IMAGE} /bin/bash

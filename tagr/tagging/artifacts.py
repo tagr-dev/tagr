@@ -78,7 +78,7 @@ class Tagr(object):
     def ret_queue(self) -> dict:
         return self.queue
 
-    def inspect(self):
+    def summary(self):
         """
         Returns pd.Dataframe of tagged variables and their values
         """
@@ -120,7 +120,7 @@ class Tagr(object):
         #####################
         # generate metadata #
         #####################
-        summary = self.inspect()
+        summary = self.summary()
         self._flush_dfs(summary, experiment_params)
         self._flush_metadata_json(summary, experiment_params)
         self._flush_non_dfs(summary, experiment_params)
@@ -131,7 +131,7 @@ class Tagr(object):
 
         Parameters
         ----------
-        summary: summary DataFrame of tagged variables returned from Tagr.inspect()
+        summary: summary DataFrame of tagged variables returned from Tagr.summary()
         experiment_params: dict of experiment namespace variables
 
         Returns
