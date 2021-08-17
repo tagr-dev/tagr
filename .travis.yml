@@ -19,5 +19,8 @@ script:
   - coverage run -m unittest discover test/
 after_script:
   - coverage xml
-  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+  - export CC_TEST_REPORTER_ID=73ca08d2c04e22855420f1c4606e83bfaab2535c47c5e394e4fbe6fa361a9564
+  - ./cc-test-reporter format-coverage -t coverage.py
+  - ./cc-test-reporter upload-coverage
+  - ./cc-test-reporter after-build --exit-code $?
 cache: pip
