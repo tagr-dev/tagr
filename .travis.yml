@@ -3,6 +3,7 @@ python:
   - "3.9"
 install:
 - pip install -r requirements.txt 
+- pip install coverage
 env:
   global:
     - PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR/tests:$TRAVIS_BUILD_DIR/tagr
@@ -10,6 +11,9 @@ env:
     - AWS_SECRET_ACCESS_KEY=testing
     - AWS_SECURITY_TOKEN=testing
     - AWS_SESSION_TOKEN=testing
+
 script:
- - python -m unittest discover test/
+  - coverage run -m unittest discover test/
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 cache: pip
