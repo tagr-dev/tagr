@@ -5,7 +5,7 @@ from moto import mock_s3
 import boto3
 import pandas as pd
 
-from tagr.storage.aws import Aws
+from tagr.storage.aws import Aws, AwsHelper
 
 
 DATA = [{"a": 1, "b": 2, "c": 3}, {"a": 10, "b": 20, "c": 30}]
@@ -91,3 +91,88 @@ class AwsTest(unittest.TestCase):
         )
         obj_content = pickle.loads(res)
         self.assertEqual(expected_result, obj_content)
+
+
+@mock_s3
+class AwsHelperTest(unittest.TestCase):
+    @staticmethod
+    def create_connection():
+        conn = boto3.resource("s3", region_name="us-east-1")
+        conn.create_bucket(Bucket=PROJ)
+        return conn
+
+    def test_get_matching_s3_objects(self):
+        expected_key = [
+            "unit_test_expr/unit_test_tag/text1.txt",
+            "unit_test_expr/unit_test_tag/text2.txt",
+        ]
+
+        aws_helper = AwsHelper()
+        conn = self.create_connection()
+
+        conn.Object(PROJ, "{}/{}/text1.txt".format(EXPERIMENT, TAG)).put(
+            Body="content_of_text1"
+        )
+        conn.Object(PROJ, "{}/{}/text2.txt".format(EXPERIMENT, TAG)).put(
+            Body="content_of_text2"
+        )
+
+        matching_objs_res = aws_helper.get_matching_s3_objects(
+            bucket=PROJ, object_path="{}/{}".format(EXPERIMENT, TAG)
+        )
+        objs_list = [obj["Key"] for obj in matching_objs_res]
+        self.assertEqual(expected_key, objs_list)
+
+        matching_keys_res = aws_helper.get_matching_s3_keys(
+            bucket=PROJ, object_path="{}/{}".format(EXPERIMENT, TAG)
+        )
+        keys_list = [key for key in matching_keys_res]
+        self.assertEqual(expected_key, keys_list)
+
+    def test_get_list_of_tables(self):
+        expected_res = [
+            "{}/{}/unit_test_tag/text1.txt".format(PROJ, EXPERIMENT),
+            "{}/{}/unit_test_tag/text2.txt".format(PROJ, EXPERIMENT),
+        ]
+
+        aws_helper = AwsHelper()
+        conn = self.create_connection()
+
+        conn.Object(PROJ, "{}/{}/text1.txt".format(EXPERIMENT, TAG)).put(
+            Body="content_of_text1"
+        )
+        conn.Object(PROJ, "{}/{}/text2.txt".format(EXPERIMENT, TAG)).put(
+            Body="content_of_text2"
+        )
+
+        list_of_tables = aws_helper.get_list_of_tables(
+            bucket=PROJ, object_path="{}/{}".format(EXPERIMENT, TAG)
+        )
+        self.assertEqual(expected_res, list_of_tables)
+
+    def test_get_object(self):
+        expected_df = DF
+        expected_dict = {"test_key": "test_val"}
+
+        storage_provider = Aws()
+        aws_helper = AwsHelper()
+
+        storage_provider.dump_csv(
+            df=DF, proj=PROJ, experiment=EXPERIMENT, tag=TAG, filename="test_data"
+        )
+        df_content = aws_helper.get_object(
+            bucket=PROJ, object_path="{}/{}/test_data.csv".format(EXPERIMENT, TAG)
+        )
+        pd._testing.assert_frame_equal(expected_df, df_content)
+
+        storage_provider.dump_pickle(
+            model=expected_dict,
+            proj=PROJ,
+            experiment=EXPERIMENT,
+            tag=TAG,
+            filename="test_dict",
+        )
+        pickle_content = aws_helper.get_object(
+            bucket=PROJ, object_path="{}/{}/test_dict.pkl".format(EXPERIMENT, TAG)
+        )
+        self.assertEqual(expected_dict, pickle_content)

@@ -102,7 +102,7 @@ class AwsHelper:
         )
 
         if object_path.endswith('.csv'):
-            obj = pd.read_csv(response['Body'])
+            obj = pd.read_csv(response['Body'], index_col=0)
         else:
             serialized_model = response['Body'].read()
             obj = pickle.loads(serialized_model)
