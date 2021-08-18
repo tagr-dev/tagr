@@ -18,6 +18,10 @@ make
 jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --allow-root &
 ```
 3. Test
+```
+# export dummy aws env vars
+python -m unittest discover test/
+```
 
 # Instructions
 1. Import tagr 
