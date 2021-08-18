@@ -5,7 +5,7 @@ from moto import mock_s3
 import boto3
 import pandas as pd
 
-from tagr.storage.aws import Aws
+from tagr.storage.aws import Aws, AwsHelper
 
 
 DATA = [{"a": 1, "b": 2, "c": 3}, {"a": 10, "b": 20, "c": 30}]
@@ -91,3 +91,41 @@ class AwsTest(unittest.TestCase):
         )
         obj_content = pickle.loads(res)
         self.assertEqual(expected_result, obj_content)
+
+
+@mock_s3
+class AwsHelperTest(unittest.TestCase):
+    @staticmethod
+    def create_connection():
+        conn = boto3.resource("s3", region_name="us-east-1")
+        conn.create_bucket(Bucket=PROJ)
+        return conn
+
+    def test_get_matching_s3_objects(self):
+        expected_key = [
+            "unit_test_expr/unit_test_tag/text1.txt",
+            "unit_test_expr/unit_test_tag/text2.txt",
+        ]
+
+        aws_helper = AwsHelper()
+        conn = self.create_connection()
+
+        conn.Object(PROJ, "{}/{}/text1.txt".format(EXPERIMENT, TAG)).put(
+            Body="content_of_text1"
+        )
+        conn.Object(PROJ, "{}/{}/text2.txt".format(EXPERIMENT, TAG)).put(
+            Body="content_of_text2"
+        )
+
+        # todo: deserialize and get to match value
+        matching_objs_res = aws_helper.get_matching_s3_objects(
+            bucket=PROJ, object_path="{}/{}".format(EXPERIMENT, TAG)
+        )
+        objs_list = [obj["Key"] for obj in matching_objs_res]
+        self.assertEqual(expected_key, objs_list)
+
+        matching_keys_res = aws_helper.get_matching_s3_keys(
+            bucket=PROJ, object_path="{}/{}".format(EXPERIMENT, TAG)
+        )
+        keys_list = [key for key in matching_keys_res]
+        self.assertEqual(expected_key, keys_list)
