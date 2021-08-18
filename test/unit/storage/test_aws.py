@@ -117,7 +117,6 @@ class AwsHelperTest(unittest.TestCase):
             Body="content_of_text2"
         )
 
-        # todo: deserialize and get to match value
         matching_objs_res = aws_helper.get_matching_s3_objects(
             bucket=PROJ, object_path="{}/{}".format(EXPERIMENT, TAG)
         )
