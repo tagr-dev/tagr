@@ -35,6 +35,11 @@ class AwsTest(unittest.TestCase):
         conn.create_bucket(Bucket=PROJ)
         return conn
 
+    @staticmethod
+    def clear_directory(conn):
+        bucket = conn.Bucket(PROJ)
+        bucket.objects.filter(Prefix="{}/{}/".format(EXPERIMENT, TAG)).delete()
+
     def test_dump_json(self):
         expected_result = DF_METADATA
 
@@ -91,6 +96,54 @@ class AwsTest(unittest.TestCase):
         )
         obj_content = pickle.loads(res)
         self.assertEqual(expected_result, obj_content)
+
+    def test_Tagr__list(self):
+        expected_paths = [
+            "{}/{}/unit_test_tag/text1.txt".format(PROJ, EXPERIMENT),
+            "{}/{}/unit_test_tag/text2.txt".format(PROJ, EXPERIMENT),
+        ]
+
+        conn = self.create_connection()
+        self.clear_directory(conn)
+
+        conn.Object(PROJ, "{}/{}/text1.txt".format(EXPERIMENT, TAG)).put(
+            Body="content_of_text1"
+        )
+        conn.Object(PROJ, "{}/{}/text2.txt".format(EXPERIMENT, TAG)).put(
+            Body="content_of_text2"
+        )
+
+        paths_list = self.storage_provider._Tagr__list(
+            proj=PROJ, experiment=EXPERIMENT, tag=TAG
+        )
+        self.assertEqual(expected_paths, paths_list)
+
+    def test_Tagr__fetch(self):
+        expected_df = DF
+        expected_dict = {"test_key": "test_val"}
+
+        conn = self.create_connection()
+        self.clear_directory(conn)
+
+        self.storage_provider.dump_csv(
+            df=DF, proj=PROJ, experiment=EXPERIMENT, tag=TAG, filename="test_data"
+        )
+        df_content = self.storage_provider._Tagr__fetch(
+            proj=PROJ, experiment=EXPERIMENT, tag=TAG, filename="test_data.csv"
+        )
+        pd._testing.assert_frame_equal(expected_df, df_content)
+
+        self.storage_provider.dump_pickle(
+            model=expected_dict,
+            proj=PROJ,
+            experiment=EXPERIMENT,
+            tag=TAG,
+            filename="test_dict",
+        )
+        pickle_content = self.storage_provider._Tagr__fetch(
+            proj=PROJ, experiment=EXPERIMENT, tag=TAG, filename="test_dict.pkl"
+        )
+        self.assertEqual(expected_dict, pickle_content)
 
 
 @mock_s3
