@@ -1,5 +1,6 @@
 # Tagr 
 [![Build Status](https://travis-ci.com/tagr-dev/tagr.svg?branch=master)](https://travis-ci.com/tagr-dev/tagr)
+[![codecov](https://codecov.io/gh/tagr-dev/tagr/branch/master/graph/badge.svg)](https://codecov.io/gh/tagr-dev/tagr)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 A cloud agnostic data science productivity tool that will:
