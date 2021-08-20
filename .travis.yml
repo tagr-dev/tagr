@@ -14,6 +14,7 @@ env:
 
 script:
   - coverage run -m unittest discover test/
+  - black --check .
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 cache: pip
