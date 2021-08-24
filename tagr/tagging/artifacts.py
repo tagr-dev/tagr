@@ -2,7 +2,7 @@ import logging
 import pandas as pd
 
 from datetime import datetime
-from tagr.config import OBJECTS, EXP_OBJECTS, EXP_OBJECT_TYPES
+from tagr.config import OBJECTS
 from tagr.storage.aws import Aws
 from tagr.storage.local import Local
 
