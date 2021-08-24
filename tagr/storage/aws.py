@@ -30,9 +30,9 @@ class Aws:
         """
         csv_buffer = StringIO()
         df.to_csv(csv_buffer)
-        self.S3.Object(proj, "{}/{}/{}.csv".format(experiment, tag, filename)).put(
-            Body=csv_buffer.getvalue()
-        )
+        self.S3.Object(
+            bucket_name=proj, key="{}/{}/{}.csv".format(experiment, tag, filename)
+        ).put(Body=csv_buffer.getvalue())
 
     def dump_json(self, df_metadata, proj, experiment, tag):
         """
@@ -45,7 +45,9 @@ class Aws:
         experiment: experiment name
         tag: custom commit message
         """
-        self.S3.Object(proj, "{}/{}/df_summary.json".format(experiment, tag)).put(
+        self.S3.Object(
+            bucket_name=proj, key="{}/{}/df_summary.json".format(experiment, tag)
+        ).put(
             Body=(bytes(json.dumps(df_metadata, cls=NpEncoder).encode("UTF-8"))),
             ContentType="application/json",
         )
@@ -63,9 +65,9 @@ class Aws:
         filename: filename to be exported
         """
         pickle_object = pickle.dumps(model)
-        self.S3.Object(proj, "{}/{}/{}.pkl".format(experiment, tag, filename)).put(
-            Body=pickle_object
-        )
+        self.S3.Object(
+            bucket_name=proj, key="{}/{}/{}.pkl".format(experiment, tag, filename)
+        ).put(Body=pickle_object)
 
     def _Tagr__list(self, proj, experiment, tag):
         """

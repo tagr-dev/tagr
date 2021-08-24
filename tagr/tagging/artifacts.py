@@ -1,6 +1,5 @@
 import logging
 import pandas as pd
-import pickle
 
 from datetime import datetime
 from tagr.config import OBJECTS, EXP_OBJECTS, EXP_OBJECT_TYPES
@@ -222,7 +221,6 @@ class Tagr(object):
         dump: destination for experiment data to be fetched from ('aws', 'local')
             - for dump, asssume local by default if destination not provided
         """
-        # determine which storage provider to use
         if dump == "aws":
             self.storage_provider = Aws()
         elif dump == "local":
