@@ -22,10 +22,27 @@ class Artifact:
         if self.dtype in OBJECTS:
             self.dtype = OBJECTS[self.dtype]
 
+        self.check_expected_type()
+
     def __repr__(self):
         return "val: {0}, obj_name: {1}, dtype: {2}".format(
             self.val, self.obj_name, self.dtype
         )
+
+    def check_expected_type(self):
+        if self.dtype == "dataframe":
+            self.evaluate_type(self.val, pd.DataFrame)
+        elif self.dtype == "primitive":
+            self.evaluate_type(self.val, (int, float, str, bool))
+
+    @staticmethod
+    def evaluate_type(val, expected_type):
+        if not isinstance(val, expected_type):
+            raise TypeError(
+                "TypeError: artifact type did not match expected {} type".format(
+                    str(expected_type)
+                )
+            )
 
 
 class Tagr(object):
