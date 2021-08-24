@@ -3,7 +3,6 @@ code heavy helper functions for Aws.py
 """
 
 import boto3
-import json
 import pandas as pd
 import pickle
 
@@ -23,8 +22,8 @@ class AwsHelper:
         s3 = boto3.client("s3")
         kwargs = {"Bucket": bucket}
 
-        # If the prefix is a single string (not a tuple of strings), we can
-        # do the filtering directly in the S3 API.
+        # If the prefix is a single string (not a tuple of strings),
+        # the filtering can be done directly in the S3 API.
         if isinstance(object_path, str):
             kwargs["Prefix"] = object_path
         else:
@@ -49,8 +48,8 @@ class AwsHelper:
                     yield obj
 
             # The S3 API is paginated, returning up to 1000 keys at a time.
-            # Pass the continuation token into the next response, until we
-            # reach the final page (when this field is missing).
+            # Pass the continuation token into the next response, until the
+            # final page pages is reached (when this field is missing).
             try:
                 kwargs["ContinuationToken"] = resp["NextContinuationToken"]
             except KeyError:
