@@ -2,7 +2,7 @@ import logging
 import pandas as pd
 
 from datetime import datetime
-from tagr.config import OBJECTS
+from tagr.config import OBJECTS, RECOGNIZED_DTYPES
 from tagr.storage.aws import Aws
 from tagr.storage.local import Local
 
@@ -16,11 +16,12 @@ class Artifact:
 
         if dtype:
             self.dtype = dtype
+            if not self.is_recognized_dtypes(self.dtype):
+                raise ValueError(
+                    "dtype must be of {}".format(", ".join(RECOGNIZED_DTYPES))
+                )
         else:
             self.dtype = OBJECTS[obj_name]
-
-        if self.dtype in OBJECTS:
-            self.dtype = OBJECTS[self.dtype]
 
         self.check_expected_type()
 
@@ -43,6 +44,10 @@ class Artifact:
                     str(expected_type)
                 )
             )
+
+    @staticmethod
+    def is_recognized_dtypes(dtype):
+        return dtype in RECOGNIZED_DTYPES
 
 
 class Tagr(object):
