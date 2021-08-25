@@ -7,9 +7,6 @@ OBJECTS = {
     "trained_model": "model",
     "prediction": "dataframe",
     "y_pred": "dataframe",
-    "accuracy": "dataframe",
-    "int": "primitive",
-    "float": "primitive",
-    "str": "primitive",
-    "bool": "primitive",
 }
+
+RECOGNIZED_DTYPES = ["dataframe", "primitive", "other"]
