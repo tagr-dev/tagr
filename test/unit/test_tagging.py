@@ -1,5 +1,4 @@
 import unittest
-from unittest.case import TestCase
 import pandas as pd
 
 from tagr.tagging import Tagr
