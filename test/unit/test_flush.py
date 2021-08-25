@@ -36,9 +36,9 @@ class FlushTest(unittest.TestCase):
     def test_get_primitive_objs_dict(self):
         expected_result = {"str1": "a", "int1": 1, "float1": 2.0}
 
-        self.tag.save("a", "str1", "str")
-        self.tag.save(1, "int1", "int")
-        self.tag.save(2.0, "float1", "float")
+        self.tag.save("a", "str1", "primitive")
+        self.tag.save(1, "int1", "primitive")
+        self.tag.save(2.0, "float1", "primitive")
         self.tag.save(DF, "df1", "dataframe")
         summary = self.tag.summary()
         primitive_objs_dict = self.tag._get_primitive_objs_dict(summary)
@@ -54,9 +54,9 @@ class FlushTest(unittest.TestCase):
 
         conn = self.create_connection()
 
-        self.tag.save("a", "str1", "str")
-        self.tag.save(1, "int1", "int")
-        self.tag.save(2.0, "float1", "float")
+        self.tag.save("a", "str1", "primitive")
+        self.tag.save(1, "int1", "primitive")
+        self.tag.save(2.0, "float1", "primitive")
         self.tag.save(DF, "df1", "dataframe")
 
         summary = self.tag.summary()
@@ -103,8 +103,8 @@ class FlushTest(unittest.TestCase):
 
         conn = self.create_connection()
 
-        self.tag.save("a", "str1", "str")
-        self.tag.save(1, "int1", "int")
+        self.tag.save("a", "str1", "primitive")
+        self.tag.save(1, "int1", "primitive")
 
         summary = self.tag.summary()
         self.tag._flush_non_dfs(summary, EXPERIMENT_PARAMS)
