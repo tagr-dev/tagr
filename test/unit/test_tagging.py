@@ -1,4 +1,5 @@
 import unittest
+from unittest.case import TestCase
 import pandas as pd
 
 from tagr.tagging import Tagr
@@ -19,6 +20,19 @@ class TaggingTest(unittest.TestCase):
         self.assertRaises(
             ValueError, lambda: self.tag.save(test_artifact, "unrecognized_obj")
         )
+
+    def test_save_with_unrecognized_dtype(self):
+        test_artifact = "foo"
+        self.assertRaises(
+            ValueError,
+            lambda: self.tag.save(test_artifact, "misnamed_dtype", "primitiveS"),
+        )
+        queue_length = len(self.tag.ret_queue())
+        self.assertEqual(queue_length, 0)
+
+    def test_save_with_wrong_dtype(self):
+        test_artifact = "foo"
+        self.assertRaises(TypeError, lambda: self.tag.save(test_artifact, "X_train"))
 
     def test_obj_name_to_dtype_conversion(self):
         data = [{"a": 1, "b": 2, "c": 3}, {"a": 10, "b": 20, "c": 30}]
