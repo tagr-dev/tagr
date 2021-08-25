@@ -88,11 +88,13 @@ class Tagr(object):
         `artifact` to preserve declarative interface
         """
         if obj_name in OBJECTS:
-            self.queue[obj_name] = Artifact(artifact, obj_name)
+            save_obj = Artifact(artifact, obj_name)
+            self.queue[obj_name] = save_obj
         elif not dtype:
             raise ValueError("dtype must be provided if custom obj")
         else:
-            self.queue[obj_name] = Artifact(artifact, obj_name, dtype)
+            save_obj = Artifact(artifact, obj_name, dtype)
+            self.queue[obj_name] = save_obj
 
         return artifact
 
