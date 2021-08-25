@@ -16,10 +16,7 @@ class Artifact:
 
         if dtype:
             self.dtype = dtype
-            if not self.is_recognized_dtypes(self.dtype):
-                raise ValueError(
-                    "dtype must be of {}".format(", ".join(RECOGNIZED_DTYPES))
-                )
+            self.is_recognized_dtypes(self.dtype)
         else:
             self.dtype = OBJECTS[obj_name]
 
@@ -47,7 +44,8 @@ class Artifact:
 
     @staticmethod
     def is_recognized_dtypes(dtype):
-        return dtype in RECOGNIZED_DTYPES
+        if not dtype in RECOGNIZED_DTYPES:
+            raise ValueError("dtype must be of {}".format(", ".join(RECOGNIZED_DTYPES)))
 
 
 class Tagr(object):
