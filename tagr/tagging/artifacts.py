@@ -2,7 +2,7 @@ import logging
 import pandas as pd
 
 from datetime import datetime
-from tagr.config import OBJECTS, EXP_OBJECTS, EXP_OBJECT_TYPES
+from tagr.config import OBJECTS, RECOGNIZED_DTYPES
 from tagr.storage.aws import Aws
 from tagr.storage.local import Local
 
@@ -16,16 +16,36 @@ class Artifact:
 
         if dtype:
             self.dtype = dtype
+            self.is_recognized_dtypes(self.dtype)
         else:
             self.dtype = OBJECTS[obj_name]
 
-        if self.dtype in OBJECTS:
-            self.dtype = OBJECTS[self.dtype]
+        self.check_expected_type()
 
     def __repr__(self):
         return "val: {0}, obj_name: {1}, dtype: {2}".format(
             self.val, self.obj_name, self.dtype
         )
+
+    def check_expected_type(self):
+        if self.dtype == "dataframe":
+            self.evaluate_type(self.val, pd.DataFrame)
+        elif self.dtype == "primitive":
+            self.evaluate_type(self.val, (int, float, str, bool))
+
+    @staticmethod
+    def evaluate_type(val, expected_type):
+        if not isinstance(val, expected_type):
+            raise TypeError(
+                "TypeError: artifact type did not match expected {} type".format(
+                    str(expected_type)
+                )
+            )
+
+    @staticmethod
+    def is_recognized_dtypes(dtype):
+        if not dtype in RECOGNIZED_DTYPES:
+            raise ValueError("dtype must be of {}".format(", ".join(RECOGNIZED_DTYPES)))
 
 
 class Tagr(object):
@@ -66,11 +86,13 @@ class Tagr(object):
         `artifact` to preserve declarative interface
         """
         if obj_name in OBJECTS:
-            self.queue[obj_name] = Artifact(artifact, obj_name)
+            save_obj = Artifact(artifact, obj_name)
+            self.queue[obj_name] = save_obj
         elif not dtype:
             raise ValueError("dtype must be provided if custom obj")
         else:
-            self.queue[obj_name] = Artifact(artifact, obj_name, dtype)
+            save_obj = Artifact(artifact, obj_name, dtype)
+            self.queue[obj_name] = save_obj
 
         return artifact
 

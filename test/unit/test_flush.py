@@ -36,9 +36,9 @@ class FlushTest(unittest.TestCase):
     def test_get_primitive_objs_dict(self):
         expected_result = {"str1": "a", "int1": 1, "float1": 2.0}
 
-        self.tag.save("a", "str1", "str")
-        self.tag.save(1, "int1", "int")
-        self.tag.save(2.0, "float1", "float")
+        self.tag.save("a", "str1", "primitive")
+        self.tag.save(1, "int1", "primitive")
+        self.tag.save(2.0, "float1", "primitive")
         self.tag.save(DF, "df1", "dataframe")
         summary = self.tag.summary()
         primitive_objs_dict = self.tag._get_primitive_objs_dict(summary)
@@ -54,9 +54,9 @@ class FlushTest(unittest.TestCase):
 
         conn = self.create_connection()
 
-        self.tag.save("a", "str1", "str")
-        self.tag.save(1, "int1", "int")
-        self.tag.save(2.0, "float1", "float")
+        self.tag.save("a", "str1", "primitive")
+        self.tag.save(1, "int1", "primitive")
+        self.tag.save(2.0, "float1", "primitive")
         self.tag.save(DF, "df1", "dataframe")
 
         summary = self.tag.summary()
@@ -100,11 +100,13 @@ class FlushTest(unittest.TestCase):
     def test_flush_non_dfs(self):
         expected_result_str = "a"
         expected_result_int = 1
+        expected_result_dict = {"test_key": "test_val"}
 
         conn = self.create_connection()
 
-        self.tag.save("a", "str1", "str")
-        self.tag.save(1, "int1", "int")
+        self.tag.save("a", "str1", "primitive")
+        self.tag.save(1, "int1", "primitive")
+        self.tag.save({"test_key": "test_val"}, "dict1", "other")
 
         summary = self.tag.summary()
         self.tag._flush_non_dfs(summary, EXPERIMENT_PARAMS)
@@ -133,5 +135,18 @@ class FlushTest(unittest.TestCase):
         )
         int_content = pickle.loads(int_file)
 
+        dict_file = (
+            conn.Object(
+                EXPERIMENT_PARAMS["proj"],
+                "{}/{}/dict1.pkl".format(
+                    EXPERIMENT_PARAMS["experiment"], EXPERIMENT_PARAMS["tag"]
+                ),
+            )
+            .get()["Body"]
+            .read()
+        )
+        dict_content = pickle.loads(dict_file)
+
         self.assertEqual(expected_result_str, str_content)
         self.assertEqual(expected_result_int, int_content)
+        self.assertEqual(expected_result_dict, dict_content)

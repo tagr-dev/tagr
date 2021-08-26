@@ -1,23 +1,3 @@
-EXP_OBJECTS = [
-    "X_train",
-    "X_test",
-    "y_train",
-    "y_test",
-    "model",
-    "prediction",
-    "y_pred",
-]
-
-EXP_OBJECT_TYPES = [
-    "dataframe",
-    "dataframe",
-    "dataframe",
-    "dataframe",
-    "model",
-    "dataframe",
-    "dataframe",
-]
-
 OBJECTS = {
     "X_train": "dataframe",
     "X_test": "dataframe",
@@ -27,9 +7,6 @@ OBJECTS = {
     "trained_model": "model",
     "prediction": "dataframe",
     "y_pred": "dataframe",
-    "accuracy": "dataframe",
-    "int": "primitive",
-    "float": "primitive",
-    "str": "primitive",
-    "bool": "primitive",
 }
+
+RECOGNIZED_DTYPES = ["dataframe", "primitive", "other"]
