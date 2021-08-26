@@ -1,3 +1,2 @@
-numpy
-pandas
-boto3
+#  Please add requirements to setup.py
+-e .[all]
