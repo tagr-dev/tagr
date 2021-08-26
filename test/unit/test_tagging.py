@@ -14,6 +14,11 @@ class TaggingTest(unittest.TestCase):
         res = self.tag.save(test_artifact, "str1", "primitive")
         self.assertEqual(res, "foo")
 
+    def test_save_other(self):
+        test_artifact = {"test_key": "test_val"}
+        res = self.tag.save(test_artifact, "dict1", "other")
+        self.assertEqual(res, {"test_key": "test_val"})
+
     def test_save_with_no_dtype(self):
         test_artifact = "foo"
         self.assertRaises(

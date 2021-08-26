@@ -100,11 +100,13 @@ class FlushTest(unittest.TestCase):
     def test_flush_non_dfs(self):
         expected_result_str = "a"
         expected_result_int = 1
+        expected_result_dict = {"test_key": "test_val"}
 
         conn = self.create_connection()
 
         self.tag.save("a", "str1", "primitive")
         self.tag.save(1, "int1", "primitive")
+        self.tag.save({"test_key": "test_val"}, "dict1", "other")
 
         summary = self.tag.summary()
         self.tag._flush_non_dfs(summary, EXPERIMENT_PARAMS)
@@ -133,5 +135,18 @@ class FlushTest(unittest.TestCase):
         )
         int_content = pickle.loads(int_file)
 
+        dict_file = (
+            conn.Object(
+                EXPERIMENT_PARAMS["proj"],
+                "{}/{}/dict1.pkl".format(
+                    EXPERIMENT_PARAMS["experiment"], EXPERIMENT_PARAMS["tag"]
+                ),
+            )
+            .get()["Body"]
+            .read()
+        )
+        dict_content = pickle.loads(dict_file)
+
         self.assertEqual(expected_result_str, str_content)
         self.assertEqual(expected_result_int, int_content)
+        self.assertEqual(expected_result_dict, dict_content)
