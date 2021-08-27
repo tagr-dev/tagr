@@ -1,7 +1,2 @@
-numpy
-pandas
-boto3
-black
-s3fs
-moto
-jupyter
+#  Please add requirements to setup.py
+-e .[all]

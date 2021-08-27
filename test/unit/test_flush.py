@@ -5,7 +5,7 @@ from moto import mock_s3
 import boto3
 import pandas as pd
 
-from tagr.tagging import Tagr
+from tagr.tagging.artifacts import Tagr
 from tagr.storage.aws import Aws
 
 DATA = [{"a": 1, "b": 2, "c": 3}, {"a": 10, "b": 20, "c": 30}]

@@ -3,11 +3,11 @@ FROM python:3.9.1-slim
 WORKDIR /app
 
 # Copy in reqired files
-COPY requirements.txt ./
+COPY requirements-dev.txt ./
 
 # Install Python Requirements
 RUN pip install -U pip
-RUN pip install -r requirements.txt
+RUN pip install -r requirements-dev.txt
 
 # Install VIM and Bash completion
 RUN apt-get update
