@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="tagr",
-    packages=["tagr"],
+    packages=find_packages(exclude=("test", "test.*")),
     version="0.0.1",
     license="MIT",
-    description="Cloud Agnostic Data Science Productivity Tool",
+    long_description="Cloud Agnostic Data Science Productivity Tool",
     author="Sunrise Long",
     author_email="sunrise.long@yahoo.ca",
     url="https://github.com/tagr-dev/tagr",
