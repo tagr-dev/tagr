@@ -36,7 +36,7 @@ class Aws:
 
     def dump_json(self, df_metadata, proj, experiment, tag):
         """
-        turns dataframe into csv and saves it to s3 directory
+        turns dictionary into json and saves it to s3 directory
 
         Parameters
         ----------
@@ -54,7 +54,7 @@ class Aws:
 
     def dump_pickle(self, model, proj, experiment, tag, filename):
         """
-        turns dataframe into csv and saves it to s3 directory
+        serializes oject to s3 directory
 
         Parameters
         ----------
