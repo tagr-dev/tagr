@@ -1,5 +1,3 @@
-from tagr import storage
-from test.unit.storage.test_aws import PROJ
 import unittest
 import json
 import pickle
