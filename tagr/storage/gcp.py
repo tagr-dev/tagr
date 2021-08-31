@@ -52,7 +52,7 @@ class Gcp:
 
     def dump_pickle(self, model, proj, experiment, tag, filename):
         """
-        serializes oject to s3 directory
+        serializes object to s3 directory
 
         Parameters
         ----------
