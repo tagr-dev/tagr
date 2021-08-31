@@ -1,10 +1,11 @@
 import unittest
 import json
 import pickle
-from moto import mock_s3
+
 import boto3
 import pandas as pd
 
+from moto import mock_s3
 from tagr.storage.aws import Aws, AwsHelper
 
 
