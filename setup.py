@@ -9,7 +9,7 @@ setup(
     author="Sunrise Long",
     author_email="sunrise.long@yahoo.ca",
     url="https://github.com/tagr-dev/tagr",
-    install_requires=["numpy", "pandas", "boto3", "google-cloud-storage"],
+    install_requires=["numpy", "pandas", "boto3", "azure-storage-blob", "google-cloud-storage"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
