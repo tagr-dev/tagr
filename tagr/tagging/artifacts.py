@@ -110,7 +110,7 @@ class Tagr(object):
 
         return pd.DataFrame(data, columns=["obj_name", "val", "dtype"])
 
-    def flush(self, proj, experiment, tag=None, dump="local"):
+    def flush(self, proj, experiment, tag=None, storage="local"):
         """
         Pushes all variables from `queue` to metadata store.
         Generates metadata for artifacts of type pd.Dataframe in JSON
@@ -121,7 +121,7 @@ class Tagr(object):
         proj: project name on metadata provider
         experiment: experiment name
         tag: custom commit message
-        dump: destination for experiment data to be dumped ('aws', 'gcp', 'azure', 'local')
+        storage: destination for experiment data to be dumped ('aws', 'gcp', 'azure', 'local')
             - for dump, asssume local by default if destination not provided
         """
 
@@ -130,11 +130,11 @@ class Tagr(object):
             logger.info("using datetime as tag")
             tag = str(datetime.utcnow())
 
-        if dump == "aws":
+        if storage == "aws":
             self.storage_provider = Aws()
-        elif dump == "gcp":
+        elif storage == "gcp":
             self.storage_provider = Gcp()
-        elif dump == "local":
+        elif storage == "local":
             self.storage_provider = Local()
             # if folder directory doesnt exist, then create new directory
             self.storage_provider.build_path(proj, experiment, tag)
