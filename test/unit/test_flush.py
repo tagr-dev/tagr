@@ -1,3 +1,5 @@
+from tagr import storage
+from test.unit.storage.test_aws import PROJ
 import unittest
 import json
 import pickle
@@ -32,6 +34,32 @@ class FlushTest(unittest.TestCase):
         conn = boto3.resource("s3", region_name="us-east-1")
         conn.create_bucket(Bucket=EXPERIMENT_PARAMS["proj"])
         return conn
+
+    def test_flush(self):
+        expected_result = {"test_key": "test_val"}
+
+        conn = self.create_connection()
+
+        self.tag.save({"test_key": "test_val"}, "dict1", "other")
+        self.tag.flush(
+            proj=EXPERIMENT_PARAMS["proj"],
+            experiment=EXPERIMENT_PARAMS["experiment"],
+            tag=EXPERIMENT_PARAMS["tag"],
+            storage="aws",
+        )
+
+        dict_file = (
+            conn.Object(
+                EXPERIMENT_PARAMS["proj"],
+                "{}/{}/dict1.pkl".format(
+                    EXPERIMENT_PARAMS["experiment"], EXPERIMENT_PARAMS["tag"]
+                ),
+            )
+            .get()["Body"]
+            .read()
+        )
+        dict_content = pickle.loads(dict_file)
+        self.assertEqual(expected_result, dict_content)
 
     def test_get_primitive_objs_dict(self):
         expected_result = {"str1": "a", "int1": 1, "float1": 2.0}
