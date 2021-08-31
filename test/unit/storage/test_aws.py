@@ -1,10 +1,11 @@
 import unittest
 import json
 import pickle
-from moto import mock_s3
+
 import boto3
 import pandas as pd
 
+from moto import mock_s3
 from tagr.storage.aws import Aws, AwsHelper
 
 
@@ -58,7 +59,7 @@ class AwsTest(unittest.TestCase):
         json_content = json.loads(res)
         self.assertEqual(expected_result, json_content)
 
-    def test_csv(self):
+    def test_dump_csv(self):
         expected_result = DF
 
         file_name = "test_df"
@@ -74,7 +75,7 @@ class AwsTest(unittest.TestCase):
         df_content = pd.read_csv(res, index_col=0)
         pd._testing.assert_frame_equal(expected_result, df_content)
 
-    def test_pickle(self):
+    def test_dump_pickle(self):
         expected_result = {"test_key": "test_val"}
 
         test_obj = {"test_key": "test_val"}

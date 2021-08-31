@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime
 from tagr.config import OBJECTS, RECOGNIZED_DTYPES
 from tagr.storage.aws import Aws
+from tagr.storage.gcp import Gcp
 from tagr.storage.local import Local
 
 logger = logging.getLogger("tagging_artifact")
@@ -131,6 +132,8 @@ class Tagr(object):
 
         if dump == "aws":
             self.storage_provider = Aws()
+        elif dump == "gcp":
+            self.storage_provider = Gcp()
         elif dump == "local":
             self.storage_provider = Local()
             # if folder directory doesnt exist, then create new directory
