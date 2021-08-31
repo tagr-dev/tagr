@@ -4,3 +4,4 @@ boto3
 black
 moto
 jupyter
+google-cloud-storage
