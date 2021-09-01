@@ -39,16 +39,19 @@ tag.flush(proj="tagr-dev", experiment="dev/sunrise", dump="aws")
 ```
 
 # How to test
-1. Run make
+1. Build the container 
 ```
 make
 ```
-2. Spin up a jupyter notebook in the container
+2. Set env vars
+```
+source .env.test
+```
+3. Spin up a jupyter notebook in the container (for manual debugging)
 ```
 jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --allow-root &
 ```
-3. Test
+4. Test
 ```
-# export dummy aws env vars
 python -m unittest discover test/
 ```
