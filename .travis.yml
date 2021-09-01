@@ -11,6 +11,9 @@ env:
     - AWS_SECRET_ACCESS_KEY=testing
     - AWS_SECURITY_TOKEN=testing
     - AWS_SESSION_TOKEN=testing
+    - GOOGLE_APPLICATION_CREDENTIALS=testing
+    - AZURE_STORAGE_ACCOUNT=testing
+    - AZURE_STORAGE_KEY=testing
 
 script:
   - coverage run -m unittest discover test/
