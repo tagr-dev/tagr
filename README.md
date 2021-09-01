@@ -13,6 +13,9 @@ A cloud agnostic data science productivity tool that will:
 pip install tagr
 ```
 
+# Authentication
+Tagr uses the Python SDK of each cloud provider to handle serialization and retrieval. This means any authentication methods supported by the respective SDK will be compatible with Tagr. The Azure SDK is dissimilar from AWS and GCP. It does not lookup configurations in the system. Rather credentials must be provided in the client constructor. As a result, supplying credentials via env vars is the currently only supported authentication method for Azure (I don't want to setup AD). See `.env.sample` for the necessary creds.
+
 # Instructions
 1. Import tagr 
 ```
@@ -34,8 +37,18 @@ tag.inspect()
 
 4. Push all your tagged artifacts to a cloud storage solution of your choice
 ```
-# s3
-tag.flush(proj="tagr-dev", experiment="dev/sunrise", dump="aws")
+# S3
+tag.flush(proj="tagr-dev", experiment="dev/sunrise", storage="aws")
+```
+
+```
+# Google Cloud Storage
+tag.flush(proj="tagr-dev", experiment="dev/sunrise", storage="gcp")
+```
+
+```
+# Azure Storage Blob
+tag.flush(proj="tagr-dev", experiment="dev/sunrise", storage="azure")
 ```
 
 # How to test
@@ -43,14 +56,17 @@ tag.flush(proj="tagr-dev", experiment="dev/sunrise", dump="aws")
 ```
 make
 ```
+
 2. Set env vars
 ```
 source .env.test
 ```
+
 3. Spin up a jupyter notebook in the container (for manual debugging)
 ```
 jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser --allow-root &
 ```
+
 4. Test
 ```
 python -m unittest discover test/
