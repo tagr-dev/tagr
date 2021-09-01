@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime
 from tagr.config import OBJECTS, RECOGNIZED_DTYPES
 from tagr.storage.aws import Aws
+from tagr.storage.azure import Azure
 from tagr.storage.gcp import Gcp
 from tagr.storage.local import Local
 
@@ -122,7 +123,7 @@ class Tagr(object):
         experiment: experiment name
         tag: custom commit message
         storage: destination for experiment data to be dumped ('aws', 'gcp', 'azure', 'local')
-            - for dump, asssume local by default if destination not provided
+            - for storage, asssume local by default if destination not provided
         """
 
         # use datetime as index if tag name not provided
@@ -134,6 +135,8 @@ class Tagr(object):
             self.storage_provider = Aws()
         elif storage == "gcp":
             self.storage_provider = Gcp()
+        elif storage == "azure":
+            self.storage_provider = Azure()
         elif storage == "local":
             self.storage_provider = Local()
             # if folder directory doesnt exist, then create new directory

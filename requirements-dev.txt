@@ -4,4 +4,5 @@ boto3
 black
 moto
 jupyter
+azure-storage-blob
 google-cloud-storage
