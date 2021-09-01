@@ -1,5 +1,5 @@
 """
-Azure Blob class inplementation
+Azure Blob class implementation
 """
 
 import os
