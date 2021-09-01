@@ -39,8 +39,8 @@ class Azure:
         """
         csv_buffer = StringIO()
         df.to_csv(csv_buffer)
-        blob = self.client.get_container_client(proj)
-        blob.upload_blob(
+        container = self.client.get_container_client(proj)
+        container.upload_blob(
             name="{}/{}/{}.csv".format(experiment, tag, filename),
             data=csv_buffer.getvalue(),
         )
@@ -56,8 +56,8 @@ class Azure:
         experiment: experiment name
         tag: custom commit message
         """
-        blob = self.client.get_container_client(proj)
-        blob.upload_blob(
+        container = self.client.get_container_client(proj)
+        container.upload_blob(
             name="{}/{}/df_summary.json".format(experiment, tag),
             data=bytes(json.dumps(df_metadata, cls=NpEncoder).encode("UTF-8")),
         )
@@ -75,7 +75,7 @@ class Azure:
         filename: filename to be exported
         """
         pickle_object = pickle.dumps(model)
-        blob = self.client.get_container_client(proj)
-        blob.upload_blob(
+        container = self.client.get_container_client(proj)
+        container.upload_blob(
             name="{}/{}/{}.pkl".format(experiment, tag, filename), data=pickle_object
         )
