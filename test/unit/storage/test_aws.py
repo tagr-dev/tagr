@@ -42,14 +42,14 @@ class AwsTest(unittest.TestCase):
         bucket.objects.filter(Prefix="{}/{}/".format(EXPERIMENT, TAG)).delete()
 
     def test_dump_json(self):
+        # Arrage
         expected_result = DF_METADATA
-
         conn = self.create_connection()
 
+        # Act
         self.storage_provider.dump_json(
             df_metadata=DF_METADATA, proj=PROJ, experiment=EXPERIMENT, tag=TAG
         )
-
         res = (
             conn.Object(PROJ, "{}/{}/df_summary.json".format(EXPERIMENT, TAG))
             .get()["Body"]
@@ -57,27 +57,27 @@ class AwsTest(unittest.TestCase):
             .decode("utf-8")
         )
         json_content = json.loads(res)
+
+        # Assert
         self.assertEqual(expected_result, json_content)
 
     def test_dump_csv(self):
         expected_result = DF
-
         file_name = "test_df"
         conn = self.create_connection()
 
         self.storage_provider.dump_csv(
             df=DF, proj=PROJ, experiment=EXPERIMENT, tag=TAG, filename=file_name
         )
-
         res = conn.Object(
             PROJ, "{}/{}/{}.csv".format(EXPERIMENT, TAG, file_name)
         ).get()["Body"]
         df_content = pd.read_csv(res, index_col=0)
+
         pd._testing.assert_frame_equal(expected_result, df_content)
 
     def test_dump_pickle(self):
         expected_result = {"test_key": "test_val"}
-
         test_obj = {"test_key": "test_val"}
         file_name = "test_dict"
         conn = self.create_connection()
@@ -89,13 +89,13 @@ class AwsTest(unittest.TestCase):
             tag=TAG,
             filename=file_name,
         )
-
         res = (
             conn.Object(PROJ, "{}/{}/{}.pkl".format(EXPERIMENT, TAG, file_name))
             .get()["Body"]
             .read()
         )
         obj_content = pickle.loads(res)
+
         self.assertEqual(expected_result, obj_content)
 
     def test_Tagr__list(self):
@@ -103,7 +103,6 @@ class AwsTest(unittest.TestCase):
             "{}/{}/unit_test_tag/text1.txt".format(PROJ, EXPERIMENT),
             "{}/{}/unit_test_tag/text2.txt".format(PROJ, EXPERIMENT),
         ]
-
         conn = self.create_connection()
         self.clear_directory(conn)
 
@@ -113,16 +112,15 @@ class AwsTest(unittest.TestCase):
         conn.Object(PROJ, "{}/{}/text2.txt".format(EXPERIMENT, TAG)).put(
             Body="content_of_text2"
         )
-
         paths_list = self.storage_provider._Tagr__list(
             proj=PROJ, experiment=EXPERIMENT, tag=TAG
         )
+
         self.assertEqual(expected_paths, paths_list)
 
     def test_Tagr__fetch(self):
         expected_df = DF
         expected_dict = {"test_key": "test_val"}
-
         conn = self.create_connection()
         self.clear_directory(conn)
 
@@ -132,8 +130,6 @@ class AwsTest(unittest.TestCase):
         df_content = self.storage_provider._Tagr__fetch(
             proj=PROJ, experiment=EXPERIMENT, tag=TAG, filename="test_data.csv"
         )
-        pd._testing.assert_frame_equal(expected_df, df_content)
-
         self.storage_provider.dump_pickle(
             model=expected_dict,
             proj=PROJ,
@@ -144,6 +140,8 @@ class AwsTest(unittest.TestCase):
         pickle_content = self.storage_provider._Tagr__fetch(
             proj=PROJ, experiment=EXPERIMENT, tag=TAG, filename="test_dict.pkl"
         )
+
+        pd._testing.assert_frame_equal(expected_df, df_content)
         self.assertEqual(expected_dict, pickle_content)
 
 
@@ -156,14 +154,15 @@ class AwsHelperTest(unittest.TestCase):
         return conn
 
     def test_get_matching_s3_objects(self):
+        # Arrage
         expected_key = [
             "unit_test_expr/unit_test_tag/text1.txt",
             "unit_test_expr/unit_test_tag/text2.txt",
         ]
-
         aws_helper = AwsHelper()
         conn = self.create_connection()
 
+        # Act
         conn.Object(PROJ, "{}/{}/text1.txt".format(EXPERIMENT, TAG)).put(
             Body="content_of_text1"
         )
@@ -181,6 +180,8 @@ class AwsHelperTest(unittest.TestCase):
             bucket=PROJ, object_path="{}/{}".format(EXPERIMENT, TAG)
         )
         keys_list = [key for key in matching_keys_res]
+
+        # Assert
         self.assertEqual(expected_key, keys_list)
 
     def test_get_list_of_tables(self):
@@ -188,7 +189,6 @@ class AwsHelperTest(unittest.TestCase):
             "{}/{}/unit_test_tag/text1.txt".format(PROJ, EXPERIMENT),
             "{}/{}/unit_test_tag/text2.txt".format(PROJ, EXPERIMENT),
         ]
-
         aws_helper = AwsHelper()
         conn = self.create_connection()
 
@@ -198,16 +198,15 @@ class AwsHelperTest(unittest.TestCase):
         conn.Object(PROJ, "{}/{}/text2.txt".format(EXPERIMENT, TAG)).put(
             Body="content_of_text2"
         )
-
         list_of_tables = aws_helper.get_list_of_tables(
             bucket=PROJ, object_path="{}/{}".format(EXPERIMENT, TAG)
         )
+
         self.assertEqual(expected_res, list_of_tables)
 
     def test_get_object(self):
         expected_df = DF
         expected_dict = {"test_key": "test_val"}
-
         storage_provider = Aws()
         aws_helper = AwsHelper()
 
@@ -217,7 +216,6 @@ class AwsHelperTest(unittest.TestCase):
         df_content = aws_helper.get_object(
             bucket=PROJ, object_path="{}/{}/test_data.csv".format(EXPERIMENT, TAG)
         )
-        pd._testing.assert_frame_equal(expected_df, df_content)
 
         storage_provider.dump_pickle(
             model=expected_dict,
@@ -229,4 +227,6 @@ class AwsHelperTest(unittest.TestCase):
         pickle_content = aws_helper.get_object(
             bucket=PROJ, object_path="{}/{}/test_dict.pkl".format(EXPERIMENT, TAG)
         )
+
+        pd._testing.assert_frame_equal(expected_df, df_content)
         self.assertEqual(expected_dict, pickle_content)
