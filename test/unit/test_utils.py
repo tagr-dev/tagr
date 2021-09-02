@@ -10,7 +10,11 @@ NUMPY_DATA = np.array([0, 1, np.int32(2), np.int64(3), np.float32(4), np.float64
 
 class UtilsTest(unittest.TestCase):
     def test_np_encoder(self):
+        # Arrange
         expected_result = json.dumps(PYTHON_DATA, sort_keys=True)
+
+        # Act
         np_json = json.dumps(NUMPY_DATA, sort_keys=True, cls=NpEncoder)
 
+        # Assert
         self.assertEqual(expected_result, np_json)
