@@ -37,7 +37,7 @@ class ArtifactTest(unittest.TestCase):
 
     def test_check_expected_type(self):
         test_artifact = "foo"
-        
+
         self.assertRaises(TypeError, lambda: Artifact(test_artifact, "X_train"))
         self.assertRaises(
             TypeError, lambda: Artifact(test_artifact, "mistyped_obj", "dataframe")
