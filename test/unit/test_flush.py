@@ -20,8 +20,6 @@ EXPERIMENT_PARAMS = {
 
 @mock_s3
 class FlushTest(unittest.TestCase):
-    maxDiff = None
-
     def __init__(self, *args, **kwargs):
         self.tag = Tagr()
         self.tag.storage_provider = Aws()
@@ -34,10 +32,11 @@ class FlushTest(unittest.TestCase):
         return conn
 
     def test_flush(self):
+        # Arrange
         expected_result = {"test_key": "test_val"}
-
         conn = self.create_connection()
 
+        # Act
         self.tag.save({"test_key": "test_val"}, "dict1", "other")
         self.tag.flush(
             proj=EXPERIMENT_PARAMS["proj"],
@@ -45,7 +44,6 @@ class FlushTest(unittest.TestCase):
             tag=EXPERIMENT_PARAMS["tag"],
             storage="aws",
         )
-
         dict_file = (
             conn.Object(
                 EXPERIMENT_PARAMS["proj"],
@@ -57,6 +55,8 @@ class FlushTest(unittest.TestCase):
             .read()
         )
         dict_content = pickle.loads(dict_file)
+
+        # Assert
         self.assertEqual(expected_result, dict_content)
 
     def test_get_primitive_objs_dict(self):
@@ -77,19 +77,16 @@ class FlushTest(unittest.TestCase):
             "stats": {"df1": DF.describe().to_dict()},
             "primitive_objs": {"float1": 2.0, "int1": 1, "str1": "a"},
         }
-
         conn = self.create_connection()
 
         self.tag.save("a", "str1", "primitive")
         self.tag.save(1, "int1", "primitive")
         self.tag.save(2.0, "float1", "primitive")
         self.tag.save(DF, "df1", "dataframe")
-
         summary = self.tag.summary()
         # flush dfs to gen metadata
         self.tag._flush_dfs(summary, EXPERIMENT_PARAMS)
         self.tag._flush_metadata_json(summary, EXPERIMENT_PARAMS)
-
         res = (
             conn.Object(
                 EXPERIMENT_PARAMS["proj"],
@@ -102,18 +99,16 @@ class FlushTest(unittest.TestCase):
             .decode("utf-8")
         )
         json_content = json.loads(res)
+
         self.assertEqual(expected_result, json_content)
 
     def test_flush_dfs(self):
         expected_result = DF
-
         conn = self.create_connection()
 
         self.tag.save(DF, "df1", "dataframe")
-
         summary = self.tag.summary()
         self.tag._flush_dfs(summary, EXPERIMENT_PARAMS)
-
         res = conn.Object(
             EXPERIMENT_PARAMS["proj"],
             "{}/{}/df1.csv".format(
@@ -121,19 +116,20 @@ class FlushTest(unittest.TestCase):
             ),
         ).get()["Body"]
         df_content = pd.read_csv(res, index_col=0)
+
         pd._testing.assert_frame_equal(expected_result, df_content)
 
     def test_flush_non_dfs(self):
+        # Arrange
         expected_result_str = "a"
         expected_result_int = 1
         expected_result_dict = {"test_key": "test_val"}
-
         conn = self.create_connection()
 
+        # Act
         self.tag.save("a", "str1", "primitive")
         self.tag.save(1, "int1", "primitive")
         self.tag.save({"test_key": "test_val"}, "dict1", "other")
-
         summary = self.tag.summary()
         self.tag._flush_non_dfs(summary, EXPERIMENT_PARAMS)
 
@@ -173,6 +169,7 @@ class FlushTest(unittest.TestCase):
         )
         dict_content = pickle.loads(dict_file)
 
+        # Assert
         self.assertEqual(expected_result_str, str_content)
         self.assertEqual(expected_result_int, int_content)
         self.assertEqual(expected_result_dict, dict_content)

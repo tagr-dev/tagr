@@ -9,11 +9,15 @@ DF = pd.DataFrame(DATA)
 
 class ArtifactTest(unittest.TestCase):
     def test_attributes(self):
+        # Arrange
         test_artifact = "foo"
         artifact_name = "str1"
         artifact_dtype = "primitive"
+
+        # Act
         artifact = Artifact(test_artifact, artifact_name, artifact_dtype)
 
+        # Assert
         self.assertEqual(artifact.val, test_artifact)
         self.assertEqual(artifact.obj_name, artifact_name)
         self.assertEqual(artifact.dtype, artifact_dtype)
@@ -23,6 +27,7 @@ class ArtifactTest(unittest.TestCase):
         artifact_name = "X_train"
 
         artifact = Artifact(test_artifact, artifact_name)
+
         pd._testing.assert_frame_equal(artifact.val, test_artifact)
         self.assertEqual(artifact.obj_name, artifact_name)
         self.assertEqual(artifact.dtype, "dataframe")
@@ -32,6 +37,7 @@ class ArtifactTest(unittest.TestCase):
 
     def test_check_expected_type(self):
         test_artifact = "foo"
+        
         self.assertRaises(TypeError, lambda: Artifact(test_artifact, "X_train"))
         self.assertRaises(
             TypeError, lambda: Artifact(test_artifact, "mistyped_obj", "dataframe")
