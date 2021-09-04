@@ -98,6 +98,20 @@ class Tagr(object):
 
         return artifact
 
+    def rm(self, obj_name):
+        """
+        Remove the supplied object from the dictionary of saved objects
+
+        Parameter
+        ---------
+        obj_name: str. Name of object to be removed
+
+        """
+        if obj_name in self.queue:
+            del self.queue[obj_name]
+        else:
+            raise KeyError("{} is not a key in the queue".format(obj_name))
+
     def ret_queue(self) -> dict:
         return self.queue
 
