@@ -75,6 +75,26 @@ class TaggingTest(unittest.TestCase):
 
         self.assertEqual(queue_length, 1)
 
+    def test_rm(self):
+        expected_length = 1
+        expected_val = 2
+        self.tag = Tagr()
+
+        self.tag.save(1, "int1", "primitive")
+        self.tag.save(2, "int2", "primitive")
+        self.tag.rm("int1")
+        queue = self.tag.ret_queue()
+        queue_length = len(queue)
+        stored_int = queue["int2"].val
+
+        self.assertEqual(queue_length, expected_length)
+        self.assertEqual(expected_val, stored_int)
+
+    def test_rm_error_handling(self):
+        self.tag = Tagr()
+
+        self.assertRaises(KeyError, lambda: self.tag.rm("non_existent_obj"))
+
     def test_summary(self):
         data = [
             {"obj_name": "num1", "val": 2.0, "dtype": "primitive"},
