@@ -21,7 +21,7 @@ Tagr uses the Python SDK of each cloud provider to handle serialization and retr
 ```
 from tagr.tagging.artifacts import Tagr
 ```
-2. After building your model and performing exploratory data analysis of your dataset, tag your training/testing/prediction datasets and model
+2. Tagr provides a declaritive interface. Mark objs for serialization as you instantiate them
 ```
 tag = Tagr()
 x = tag.save(artifact=df, obj_name="X_train")
