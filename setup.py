@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="tagr",
     packages=find_packages(exclude=("test", "test.*")),
-    version="0.0.1",
+    version="0.0.2",
     license="MIT",
     long_description="Cloud Agnostic Data Science Productivity Tool",
     author="Sunrise Long",
