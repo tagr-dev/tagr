@@ -54,7 +54,7 @@ tag.flush(proj="tagr-dev", experiment="dev/sunrise", storage="azure")
 # How to test
 1. Build the container 
 ```
-make
+make build
 ```
 
 2. Set env vars
